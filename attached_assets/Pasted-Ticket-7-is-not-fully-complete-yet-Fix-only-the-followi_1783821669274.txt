@@ -1,0 +1,93 @@
+Ticket 7 is not fully complete yet. Fix only the following issues, then stop for my review.
+
+
+
+1. Today’s Workout
+
+- Remove the “Start Workout” button completely.
+
+- Keep the card in its current position and preserve its existing expand/collapse behavior.
+
+- Do not remove any other information or functionality from the card.
+
+
+
+2. Today’s Stats
+
+- The  circular progress rings are currently static.
+
+- Animate the rings when the Home page opens or becomes focused. 
+
+- The ring should visibly fill from 0 to the correct progress value.
+
+- Animate the displayed consumed values from 0 to their final values as well.
+
+- Do not repeatedly restart the animation during normal scrolling or re-renders.
+
+- Keep Steps unchanged unless necessary for visual consistency.
+
+
+
+3. Rest Timer — Direct Typing
+
+- Keep the existing quick presets.
+
+- Keep the existing + and − controls.
+
+- Also allow the user to tap and directly type the hours, minutes, and seconds using numeric TextInput fields.
+
+- Use the format HH:MM:SS.
+
+- Hours must not be negative.
+
+- Minutes and seconds must stay between 0 and 59.
+
+- Sanitize invalid or non-numeric input.
+
+- Changes made by typing, presets, or +/− controls must all update the same timer state.
+
+- Use proper keyboard avoidance and dismiss the keyboard with Done.
+
+
+
+4. Rest Timer — Completion Beep
+
+- When the running timer reaches 00:00:00, play a simple classic beep/alarm sound.
+
+- Use the Expo-compatible audio library already installed in the project. If none exists, use the appropriate Expo audio package without adding unnecessary dependencies.
+
+- Bundle a small local sound asset with the app rather than relying on an internet URL.
+
+- Play the sound only once per completed countdown.
+
+- Reset it correctly before the next countdown.
+
+- Make sure pausing, resetting, editing, or selecting a preset does not accidentally trigger the sound.
+
+- Respect the device’s audio behavior as much as Expo allows.
+
+
+
+Do not add new AI features or perform broad “future-proofing” refactors in this fix. Do not redesign unrelated sections.
+
+
+
+After implementation:
+
+- Test ring animations on page entry.
+
+- Test typed timer values, presets, and +/− controls together.
+
+- Test invalid minute and second values.
+
+- Test pause, resume, and reset.
+
+- Test that the beep plays once when the countdown ends.
+
+- Run TypeScript checks.
+
+- Summarize the exact files and logic changed.
+
+
+
+Then stop and wait for my review.

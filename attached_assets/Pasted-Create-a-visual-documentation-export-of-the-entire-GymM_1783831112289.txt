@@ -1,0 +1,50 @@
+Create a visual documentation export of the entire GymMice app.
+
+Do not modify the app’s UI or functionality.
+
+Before starting, scan the app routes and list every user-visible screen, modal, tab, onboarding step, and important expanded/collapsed state that should be captured.
+
+Then automate the following:
+
+1. Launch the app in a mobile viewport matching a modern phone.
+2. Navigate through every accessible screen.
+3. Capture a clean screenshot of each screen after all content and animations finish loading.
+4. Include important states where relevant, such as:
+   - light mode,
+   - dark mode,
+   - onboarding steps,
+   - expanded cards,
+   - open modals,
+   - Week and Month schedule views,
+   - Pump Match collapsed and expanded profile states,
+   - Analytics Push/Pull/Legs tabs,
+   - empty states and populated states when useful.
+5. Use stable mock/local data so screenshots remain consistent.
+6. Hide developer overlays, error banners, cursors, scrollbars, debug UI, and testing controls.
+7. Use clear filenames such as:
+   - 01-splash-light.png
+   - 02-signin-light.png
+   - 03-home-light.png
+   - 04-home-dark.png
+   - 05-schedule-week.png
+   - 06-schedule-month.png
+8. Save all screenshots inside:
+   artifacts/screenshots/
+9. Generate:
+   - individual PNG screenshots,
+   - one high-resolution contact sheet containing all screens with labels,
+   - one PDF containing one labeled screenshot per page.
+10. Make sure screenshots are not stretched, cropped incorrectly, blurred, or duplicated.
+
+Use Playwright or the project’s existing browser-testing tooling.
+
+For screens that require navigation or local state:
+- seed the required mock data,
+- use the existing app flows where possible,
+- do not permanently alter user data.
+
+After completion:
+- provide the complete list of captured screens,
+- mention any screens that could not be captured and why,
+- provide the exact file paths for the screenshot folder, contact sheet, and PDF,
+- then stop.

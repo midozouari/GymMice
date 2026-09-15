@@ -1,0 +1,203 @@
+Proceed with Ticket 5 only.
+
+Do not begin any other tickets after this one is complete.
+
+Preserve all existing functionality, architecture, navigation, styling and animations unless changes are required for this ticket.
+
+If you encounter an unexpected issue, architectural conflict or need to make a design decision outside the scope of this ticket, stop and ask me before making changes.
+
+==========================================
+TICKET 5 — SCHEDULE PAGE IMPROVEMENTS
+==========================================
+
+The goal of this ticket is to transform the Schedule page into a polished, modern planner while keeping it lightweight enough for an MVP.
+
+----------------------------------------
+1. Expand the Weekly Calendar
+----------------------------------------
+
+The current schedule only displays Monday through Friday.
+
+Expand it to include all seven days:
+
+• Monday
+• Tuesday
+• Wednesday
+• Thursday
+• Friday
+• Saturday
+• Sunday
+
+Maintain the current design language.
+
+----------------------------------------
+2. Time Grid
+----------------------------------------
+
+Display hour labels along the left side of the weekly calendar.
+
+Example:
+
+07:00
+08:00
+09:00
+...
+22:00
+
+Events should occupy blocks proportional to their duration, similar to Google Calendar or Apple Calendar.
+
+Avoid overlapping text.
+
+----------------------------------------
+3. Improve Daily Plans
+----------------------------------------
+
+Replace the repetitive placeholder schedule with realistic and diverse daily plans.
+
+Examples include:
+
+• University
+• Work
+• Push Workout
+• Pull Workout
+• Leg Day
+• Grocery Shopping
+• Meal Prep
+• Stretching
+• Recovery
+• Study Session
+• Coffee with Friends
+• Laundry
+• Rest
+• Dinner
+
+Every day should feel unique.
+
+----------------------------------------
+4. Functional "+" Button
+----------------------------------------
+
+The "+" button must become fully functional.
+
+When pressed, open an "Add Event" modal.
+
+Fields:
+
+• Event title
+• Date / Day
+• Start time
+• End time
+• Category
+• Optional notes
+
+Categories:
+
+• Gym
+• Study
+• Work
+• Meal
+• Personal
+• Social
+
+Use proper KeyboardAvoidingView.
+
+Allow saving locally for this MVP.
+
+----------------------------------------
+5. Monthly Calendar
+----------------------------------------
+
+Add a Month view.
+
+Requirements:
+
+• Calendar grid
+• Dot indicators on dates containing events
+• Selecting a day displays that day's events below the calendar
+• Smooth transition between Week and Month views
+
+Do NOT implement a yearly calendar in this ticket.
+
+----------------------------------------
+6. UX Improvements
+----------------------------------------
+
+Add a Today button that jumps back to today's date.
+
+Highlight the current day.
+
+If today's time is visible, display a thin red "current time" indicator similar to modern calendar apps.
+
+----------------------------------------
+7. Event Appearance
+----------------------------------------
+
+Make event cards visually appealing.
+
+Use subtle category colors:
+
+Gym → Red
+Study → Blue
+Work → Orange
+Meal → Green
+Personal → Purple
+Social → Pink
+
+Each event should have:
+
+• icon
+• title
+• start/end time
+
+Keep the UI clean and premium.
+
+----------------------------------------
+8. Future-Proof Architecture
+----------------------------------------
+
+Even though this is an MVP, structure the schedule so it can later support:
+
+• AI-generated workout sessions
+• AI schedule optimization
+• Google Calendar sync
+• Apple Calendar sync
+• recurring events
+• reminders
+
+Do NOT implement those features yet.
+
+Only prepare the architecture so future integration requires minimal refactoring.
+
+----------------------------------------
+9. Design Inspiration
+----------------------------------------
+
+Use the attached reference image as inspiration only.
+
+Do NOT copy it exactly.
+
+Maintain the existing GymMice visual identity while adopting the following ideas:
+
+• Weekly timeline with hour labels
+• Month view with event indicators
+• Modern rounded event cards
+• Professional spacing
+• Clean dark UI
+• Smooth transitions
+• Premium user experience
+
+----------------------------------------
+10. Validation
+----------------------------------------
+
+After implementation:
+
+• Verify both Week and Month views work correctly.
+• Verify the "+" button creates events correctly.
+• Verify newly created events appear immediately.
+• Verify no existing functionality has been broken.
+• Verify navigation still behaves correctly.
+• Run TypeScript checks.
+• Summarize every modified file.
+
+Then STOP and wait for my review before beginning the next ticket.

@@ -1,0 +1,341 @@
+Before making ANY code changes, perform a complete analysis of my existing codebase.
+
+Do NOT edit any files yet.
+
+First, carefully review the current architecture, components, navigation, styling, state management, animations, reusable components and overall project structure.
+
+After analyzing the project, provide:
+
+1. A concise summary proving that you fully understood every requested modification.
+
+2. A list of every file that will need to be modified.
+
+3. Group all requested work into implementation tickets ordered from lowest risk to highest risk.
+
+4. Identify any possible conflicts, dependencies or improvements before coding.
+
+5. Suggest better implementation approaches whenever appropriate while preserving the original vision.
+
+Wait for my approval before writing any code.
+
+IMPORTANT RULES
+
+• Preserve every existing feature unless I explicitly request otherwise.
+• Do NOT redesign the application.
+• Do NOT rewrite unrelated files.
+• Do NOT refactor large parts of the project unless absolutely necessary.
+• Reuse existing components whenever possible.
+• Keep the architecture modular and scalable.
+• Avoid duplicate code.
+• Preserve the current visual identity of GymMice.
+• Keep animations smooth and consistent across the application.
+• Every new feature should be production-ready and easy to extend later.
+• If something cannot reasonably be implemented in the MVP, explain why before coding.
+
+=========================
+REQUESTED CHANGES
+=========================
+
+------------------------------------
+SPLASH SCREEN
+------------------------------------
+
+Simplify the splash screen.
+
+Only keep:
+
+• Dumbbell icon
+• GYMMICE logo
+• "Train · Eat · Connect"
+• Centered Get Started button
+
+Remove:
+
+• Weightlifting illustration
+• "Your personalized fitness ecosystem for gym beginners who mean business."
+• "Already have an account? Sign in"
+• "Train smarter. Eat better. Connect safely."
+
+The result should feel minimal, premium and centered.
+
+------------------------------------
+GLOBAL KEYBOARD & INPUT FIXES
+------------------------------------
+
+This issue exists across the entire application.
+
+Currently, most text input fields become hidden behind the keyboard.
+
+Only the DM chat screen behaves correctly.
+
+Fix every text input in the application so that:
+
+• Inputs always remain visible.
+• Keyboard avoidance works correctly.
+• Scrolling feels natural.
+• Keyboard dismisses correctly after submission.
+
+Also configure proper keyboard actions:
+
+Search → Search
+
+Comment → Send
+
+Reply → Send
+
+Forms → Next
+
+Final field → Done
+
+Submitting should execute the expected action while dismissing the keyboard whenever appropriate.
+
+------------------------------------
+ONBOARDING
+------------------------------------
+
+"What describes you best?"
+
+When Athlete is selected:
+
+Display an additional searchable selector containing many organized sports sorted alphabetically.
+
+Examples include boxing, football, basketball, tennis, swimming, wrestling, athletics, cycling, volleyball and many more.
+
+The selected sport will later be used by the AI workout generator.
+
+------------------------------------
+
+"Your Goal Physique"
+
+Add an OPTIONAL dream physique upload section.
+
+Allow the user to upload an image.
+
+This image will later be analyzed by AI to generate a personalized workout split.
+
+Keep this optional.
+
+------------------------------------
+HOME PAGE
+------------------------------------
+
+Replace Calories and Water cards with animated circular progress indicators showing:
+
+• Goal
+• Consumed
+• Remaining
+
+Keep Steps unchanged.
+
+Animate every statistic whenever the page opens.
+
+Numbers should smoothly count upward.
+
+Progress bars should animate.
+
+Graphs should animate.
+
+Nothing should appear instantly.
+
+------------------------------------
+
+Session Progress
+
+The current graph becomes a preview.
+
+Selecting it opens a dedicated analytics page.
+
+Analytics page contains three sections:
+
+Push
+
+Pull
+
+Legs
+
+Each section displays detailed exercise progression.
+
+Each exercise has its own line on the graph.
+
+Examples:
+
+Bench Press
+
+Incline DB Press
+
+Shoulder Press
+
+Lat Pulldown
+
+Rows
+
+Squats
+
+Leg Press
+
+etc.
+
+Graphs should look realistic.
+
+Avoid perfectly linear progression.
+
+Include:
+
+• plateaus
+• slight regressions
+• improvements
+• fluctuations
+
+Overall they should look believable.
+
+------------------------------------
+
+Workout Timer
+
+Keep quick presets if desired.
+
+Also add complete manual customization.
+
+Allow hours, minutes and seconds.
+
+Include plus and minus controls.
+
+Example:
+
+01 h
+
+35 m
+
+47 s
+
+The timer should no longer be limited to four presets.
+
+------------------------------------
+SCHEDULE PAGE
+------------------------------------
+
+Expand the weekly schedule to include:
+
+Monday through Sunday.
+
+Make the + button functional.
+
+Allow users to create personal events.
+
+Display hour labels along the left side of the calendar.
+
+Example:
+
+07:00
+
+08:00
+
+09:00
+
+etc.
+
+Replace repetitive daily schedules with realistic and diverse plans.
+
+If feasible within the MVP, also implement Monthly and Yearly calendar views for long-term planning such as trips, graduations and important events.
+
+------------------------------------
+PUMP MATCH
+------------------------------------
+
+Replace button-based interaction with swipe gestures.
+
+Swipe left
+
+Swipe right
+
+instead of pressing Pass/Super buttons.
+
+Replace the center Match button with an Info button.
+
+Info should display additional user information such as:
+
+Bio
+
+Birthday
+
+Interests
+
+Music preferences
+
+etc.
+
+Improve visual hierarchy.
+
+Pass actions should use red accents.
+
+Super actions should use green accents.
+
+Since matchmaking is not yet connected to a backend, simulate realistic random matches for MVP purposes.
+
+Occasionally trigger an
+
+"It's a Pump Match!"
+
+popup.
+
+When the popup appears,
+
+the Send Message button should immediately open the conversation keyboard and allow the user to send a demo message.
+
+------------------------------------
+PROFILE PAGE
+------------------------------------
+
+Remove the Notifications button.
+
+Notification access already exists elsewhere.
+
+Maintain existing notification functionality.
+
+Correct badge consistency.
+
+The header and profile should display the same unlocked badges.
+
+------------------------------------
+SOCIAL FEED
+------------------------------------
+
+Only allow ONE reaction per post.
+
+Selecting another reaction replaces the previous one.
+
+Expand the feed to approximately ten diverse posts.
+
+Include a realistic mixture of:
+
+Photos
+
+Anonymous posts
+
+Stories
+
+Text posts
+
+Gym updates
+
+Location check-ins
+
+Progress updates
+
+General community content
+
+The Feed / DM navigation bar must remain fixed at the top while scrolling.
+
+At the end of the feed,
+
+display a polished animated message similar to Instagram:
+
+"You're all caught up! You've seen all the latest posts from your friends."
+
+------------------------------------
+GENERAL EXPECTATIONS
+------------------------------------
+
+The overall objective is NOT to redesign GymMice.
+
+The objective is to polish the MVP, improve user experience, increase realism, improve consistency, prepare future AI integration and make the application feel closer to a production-ready product while preserving the existing architecture and functionality.

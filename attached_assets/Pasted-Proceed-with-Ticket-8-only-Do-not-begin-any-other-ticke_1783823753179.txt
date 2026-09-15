@@ -1,0 +1,623 @@
+Proceed with Ticket 8 only.
+
+
+
+Do not begin any other tickets after this one is complete.
+
+
+
+Preserve all existing navigation, architecture, animations and styling unless changes are required for this ticket.
+
+
+
+If you encounter an architectural conflict or need to make a design decision outside the scope of this ticket, stop and ask me before making changes.
+
+
+
+==========================================
+
+TICKET 8 — PUMP MATCH REDESIGN
+
+==========================================
+
+
+
+The objective of this ticket is to completely redesign the Pump Match experience into a polished, premium swipe interface inspired by modern social apps while keeping GymMice's identity.
+
+
+
+----------------------------------------
+
+1. Swipe-Based Interaction
+
+----------------------------------------
+
+
+
+Remove the current Pass and Super buttons as the primary interaction.
+
+
+
+Users should instead:
+
+
+
+• Swipe LEFT = Pass
+
+• Swipe RIGHT = Super
+
+
+
+The card should move naturally with the user's finger.
+
+
+
+While dragging:
+
+
+
+• Left swipe shows a red PASS indicator.
+
+• Right swipe shows a green SUPER indicator.
+
+
+
+After release:
+
+
+
+• Animate the card off-screen.
+
+• Automatically load the next profile.
+
+
+
+Keep the interaction smooth and premium.
+
+
+
+----------------------------------------
+
+2. Bottom Actions
+
+----------------------------------------
+
+
+
+Keep only icon buttons.
+
+
+
+Remove every text label.
+
+
+
+Buttons:
+
+
+
+❌ Pass
+
+
+
+ℹ️ Info
+
+
+
+⭐ Super
+
+
+
+No text underneath.
+
+
+
+The buttons should perform exactly the same actions as the swipe gestures.
+
+
+
+----------------------------------------
+
+3. Modern Profile Card
+
+----------------------------------------
+
+
+
+Redesign the profile card.
+
+
+
+Display:
+
+
+
+• Profile photo
+
+• Name
+
+• Age
+
+• Verification badge
+
+• City + Country
+
+
+
+Badges:
+
+
+
+• Fitness Goal
+
+• Experience Level
+
+• Height
+
+
+
+Below that:
+
+
+
+About Me
+
+
+
+Example:
+
+
+
+"Software engineer, gym rat, coffee addict. Looking for a consistent lifting partner."
+
+
+
+Below:
+
+
+
+Training Time
+
+
+
+Preferred Gym
+
+
+
+Preferred Split
+
+
+
+Workout Intensity
+
+
+
+Everything should feel clean, spacious and premium.
+
+
+
+----------------------------------------
+
+4. Info Screen
+
+----------------------------------------
+
+
+
+Pressing the Info button should open a full profile page.
+
+
+
+Include:
+
+
+
+Profile photo
+
+
+
+Name
+
+
+
+Age
+
+
+
+Location
+
+
+
+Goal
+
+
+
+Experience
+
+
+
+Height
+
+
+
+Sport (if athlete)
+
+
+
+About Me
+
+
+
+Interests
+
+
+
+Examples:
+
+
+
+• Hip-Hop
+
+
+
+• Coffee
+
+
+
+• Gaming
+
+
+
+• Travel
+
+
+
+• Football
+
+
+
+Looking For
+
+
+
+Examples:
+
+
+
+• Gym Buddy
+
+
+
+• Spotter
+
+
+
+• Accountability Partner
+
+
+
+• Running Partner
+
+
+
+• Powerlifting Partner
+
+
+
+Gym Preferences
+
+
+
+• Preferred Split
+
+
+
+• Training Time
+
+
+
+• Workout Intensity
+
+
+
+• Preferred Gym
+
+
+
+Display a large Send Message button at the bottom.
+
+
+
+----------------------------------------
+
+5. Mock Profiles
+
+----------------------------------------
+
+
+
+Generate between 30 and 50 realistic fake profiles.
+
+
+
+Each profile should have unique:
+
+
+
+• Name
+
+
+
+• Age
+
+
+
+• Gender
+
+
+
+• City
+
+
+
+• Country
+
+
+
+• Profile picture
+
+
+
+• Bio
+
+
+
+• Goal
+
+
+
+• Experience
+
+
+
+• Height
+
+
+
+• Sport (optional)
+
+
+
+• Music taste
+
+
+
+• Interests
+
+
+
+• Looking For
+
+
+
+• Preferred Split
+
+
+
+• Preferred Gym
+
+
+
+• Training Time
+
+
+
+• Workout Intensity
+
+
+
+Avoid duplicate profiles.
+
+
+
+The feed should feel realistic.
+
+
+
+----------------------------------------
+
+6. Compatibility Score
+
+----------------------------------------
+
+
+
+Generate a compatibility score.
+
+
+
+Example:
+
+
+
+92% Compatible
+
+
+
+Use onboarding information as a basis when available.
+
+
+
+For the MVP, a simple compatibility calculation is sufficient.
+
+
+
+Display it elegantly on the profile card.
+
+
+
+----------------------------------------
+
+7. MVP Matching
+
+----------------------------------------
+
+
+
+For the MVP:
+
+
+
+Randomly trigger a successful Pump Match after several Super swipes.
+
+
+
+The popup should feel exciting.
+
+
+
+Display:
+
+
+
+"It's a Pump Match! 💪"
+
+
+
+Show both profile pictures.
+
+
+
+The Send Message button should immediately open the existing chat screen with that user.
+
+
+
+----------------------------------------
+
+8. Polish
+
+----------------------------------------
+
+
+
+Add subtle card shadows.
+
+
+
+Smooth swipe animations.
+
+
+
+Premium transitions.
+
+
+
+Natural card stacking.
+
+
+
+Preload the next card to avoid loading delays.
+
+
+
+The experience should feel extremely fluid.
+
+
+
+----------------------------------------
+
+9. Validation
+
+----------------------------------------
+
+
+
+After implementation:
+
+
+
+• Test left swipe.
+
+
+
+• Test right swipe.
+
+
+
+• Test Pass button.
+
+
+
+• Test Super button.
+
+
+
+• Test Info button.
+
+
+
+• Test profile generation.
+
+
+
+• Test compatibility scores.
+
+
+
+• Test match popup.
+
+
+
+• Test Send Message.
+
+
+
+• Test loading dozens of profiles.
+
+
+
+• Run TypeScript checks.
+
+
+
+• Summarize every modified file.
+
+
+
+Then STOP and wait for my review.
+
+
+
+----------------------------------------
+
+10. Multiple Photos Per Profile
+
+----------------------------------------
+
+
+
+Each mock profile should contain between 3 and 5 unique photos.
+
+
+
+Requirements:
+
+
+
+- Display the photos inside the same swipe card.
+
+- Add small progress indicators at the top of the image, similar to Instagram Stories or Tinder.
+
+- Tapping the left side of the image shows the previous photo.
+
+- Tapping the right side shows the next photo.
+
+- Swiping the card left or right must still perform Pass or Super and must not conflict with photo navigation.
+
+- Reset to the first photo when loading a new profile.
+
+- The Info screen should also allow browsing all profile photos.
+
+- Preload the next image to avoid visible loading delays.
+
+- Avoid duplicate photos within the same profile.

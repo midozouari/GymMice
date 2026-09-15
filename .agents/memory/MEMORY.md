@@ -1,0 +1,4 @@
+- [GymMice architecture](gymmice-arch.md) — frontend-only Expo app with ThemeContext for 5 palettes + AsyncStorage, no backend.
+- [GymMice apostrophe issue](gymmice-apostrophe-fix.md) — strings with apostrophes in mockData/chat must use double quotes to avoid Metro syntax errors.
+- [GymMice Pump Match card](gymmice-pumpmatch-card.md) — in-place bottom-sheet Info expansion, slot-keyed stack cards, and a web-preview gesture-testing caveat.
+- [GymMice theme tokens](gymmice-dark-mode.md) — palette+mode-merged ThemeColors via useTheme(), startup-flash gate, and the parallel-subagent sweep pattern.

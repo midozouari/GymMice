@@ -1,0 +1,325 @@
+The current Pump Match implementation is not acceptable yet. Fix only Pump Match and do not proceed to any other ticket.
+
+Before coding, inspect the current implementation and briefly explain which parts of the existing flow are causing:
+- unnecessary page navigation,
+- pale/boring visual design,
+- poor profile imagery,
+- visible “Pass” and “Super” text,
+- premature messaging before a match,
+- and unsmooth profile transitions.
+
+Then implement the following corrected experience.
+
+==========================================
+PUMP MATCH — FULL UX/UI CORRECTION
+==========================================
+
+## 1. Keep Pump Match as one continuous screen
+
+Do not navigate to a separate profile details page when the user taps the Info button.
+
+The main Pump Match screen must remain active at all times.
+
+Tapping the Info icon should smoothly expand the current profile upward into a scrollable detailed view, similar to a draggable bottom sheet or an expanding card.
+
+The user should not need to press Back to return to swiping.
+
+Requirements:
+
+- Tap Info → current profile smoothly expands upward.
+- Expanded content is vertically scrollable.
+- The profile photo section remains visually connected to the details.
+- The user can collapse the information by dragging downward or tapping the Info icon again.
+- Swiping left or right must still work while the profile is expanded, regardless of how far the user has scrolled through the details.
+- Swiping to the next profile should automatically reset the next profile to its default collapsed state and first photo.
+
+Do not create a separate route or page for profile details.
+
+## 2. Profile card size and layout
+
+Make the main profile card larger and wider so it fills the available screen beautifully.
+
+Requirements:
+
+- Reduce unnecessary outer spacing and empty margins.
+- The profile card should dominate the screen.
+- Keep safe spacing from the header and bottom navigation.
+- Use rounded corners, depth, subtle shadows, gradients, and stronger visual hierarchy.
+- Maintain the existing GymMice visual identity.
+- The page should not feel pale, flat, empty, or unfinished.
+
+The result should look premium, energetic, social, and fitness-focused.
+
+## 3. Remove all action text labels
+
+Remove the visible words:
+
+- Pass
+- Super
+- Match
+
+Keep only three circular icon buttons:
+
+- X icon for pass
+- Info icon in the center
+- Star or lightning icon for right swipe / positive interest
+
+There must be no text underneath or beside these buttons.
+
+Use red accents for the X icon and green accents for the positive-interest icon.
+
+The Info icon should remain visually neutral.
+
+## 4. Swipe interaction
+
+Primary interaction:
+
+- Swipe left = pass
+- Swipe right = positive interest
+
+The buttons are only secondary shortcuts.
+
+Requirements:
+
+- The card must follow the finger naturally.
+- Left drag shows a subtle red visual overlay.
+- Right drag shows a subtle green visual overlay.
+- Use a clear swipe threshold.
+- If the threshold is not reached, spring the card smoothly back into place.
+- If the threshold is reached, animate the card fully off-screen.
+- The next profile must already be rendered underneath.
+- The next card should subtly scale from approximately 96% to 100% as it becomes active.
+- No blank screen.
+- No flicker.
+- No hard refresh.
+- No visual jump.
+- No noticeable lag.
+
+The transition between profiles must feel extremely smooth.
+
+## 5. Profile image quality
+
+Do not generate AI faces, avatars, illustrations, elderly-looking people, placeholder silhouettes, or low-quality random images.
+
+Create exactly 10 carefully curated mock profiles for the MVP.
+
+Use only high-quality royalty-free fitness photographs from reliable sources such as Unsplash or Pexels.
+
+Requirements for the 10 profiles:
+
+- Approximately 5 men and 5 women.
+- Ages roughly 18–35.
+- Sporty, fit, healthy, attractive, and believable gym users.
+- Diverse ethnicities and body types.
+- Different fitness identities, such as:
+  - bodybuilder,
+  - powerlifter,
+  - runner,
+  - boxer,
+  - dancer,
+  - CrossFit athlete,
+  - calisthenics athlete,
+  - rugby player,
+  - casual gym-goer,
+  - transformation beginner.
+- No elderly profiles.
+- No obviously generated faces.
+- No mismatched gender, age, or physique.
+- No duplicate people across profiles.
+
+Each profile must have 3 to 5 photos of the same person or a visually consistent set that clearly represents one believable profile.
+
+Every image should have:
+
+- strong resolution,
+- good composition,
+- proper cropping,
+- consistent aspect ratio,
+- good lighting,
+- no stretching,
+- no broken links.
+
+If external URLs are used, ensure they load reliably and include graceful fallbacks.
+
+## 6. Multi-photo navigation
+
+Each profile must support 3 to 5 photos.
+
+Requirements:
+
+- Show small photo-progress indicators at the top of the image area.
+- Tap the left side of the image to move to the previous photo.
+- Tap the right side to move to the next photo.
+- Reset to the first photo when switching to a new profile.
+- Preload the next photo and next profile’s first image.
+- Photo navigation must not accidentally trigger profile swiping.
+- Swiping the whole card must still work naturally.
+- Expanded Info mode should also allow browsing the profile’s photos.
+
+## 7. Collapsed profile information
+
+In the default collapsed state, show only the most important information:
+
+- Name
+- Age
+- Verification badge if applicable
+- City / location
+- Compatibility percentage
+- Fitness goal
+- Experience level
+- Height
+
+Keep this information clean and readable over the lower part of the image using an appropriate gradient.
+
+Do not overload the collapsed card.
+
+## 8. Expanded profile information
+
+When Info is expanded, reveal the rest of the profile in the same screen.
+
+Include:
+
+- About Me
+- Interests
+- Looking For
+- Sport or discipline
+- Preferred workout split
+- Preferred gym
+- Training time
+- Workout intensity
+- Music taste
+- Birthday or age
+- Compatibility score
+- Additional photos
+
+Generate realistic, unique information for every one of the 10 profiles.
+
+Each profile should feel handwritten and believable, not copied from the same template.
+
+Examples of “Looking For”:
+
+- Gym buddy
+- Spotter
+- Accountability partner
+- Running partner
+- Powerlifting partner
+- Boxing conditioning partner
+- Calisthenics buddy
+- Weekend workout partner
+
+## 9. Remove premature messaging
+
+Remove the “Send Message” button from the profile details view completely.
+
+Users must not be able to message someone before both users have matched.
+
+Messaging should only become available after a successful Pump Match.
+
+The only place where “Send Message” should appear is inside the successful match popup.
+
+## 10. MVP matching behavior
+
+For this MVP, simulate a successful match after a reasonable number of right swipes.
+
+Do not trigger a match on every right swipe.
+
+Requirements:
+
+- Use a simple predictable demo-friendly rule, such as triggering a match after every third right swipe, or a similarly controlled approach.
+- When matched, show a polished modal:
+  - “It’s a Pump Match!”
+  - Both profile pictures
+  - Send Message button
+  - Keep Swiping button
+- Send Message should open the existing chat screen for that profile.
+- Keep Swiping should close the popup and continue the card stack.
+
+## 11. Profile data quality
+
+Create exactly 10 fully completed profiles.
+
+Every profile should have unique:
+
+- Name
+- Age
+- Gender
+- City
+- Country
+- Bio
+- Fitness goal
+- Experience level
+- Height
+- Sport
+- Music taste
+- Interests
+- Looking For
+- Preferred split
+- Preferred gym
+- Training time
+- Workout intensity
+- Compatibility score
+- 3–5 photos
+
+Avoid duplicated bios, repeated interests, repeated schedules, and generic placeholder text.
+
+## 12. Performance and interaction quality
+
+Prioritize smoothness.
+
+Requirements:
+
+- Preload the next card.
+- Preload upcoming images.
+- Avoid unnecessary re-renders.
+- Keep gesture state separate from profile data.
+- Use Reanimated and Gesture Handler correctly.
+- Ensure nested vertical scrolling in expanded Info mode does not fight with horizontal swipe gestures.
+- Use gesture-direction locking or a similar solution:
+  - vertical gesture → scroll details,
+  - clear horizontal gesture → swipe card.
+- Test on a real mobile viewport, not only web preview.
+
+## 13. Preserve unrelated functionality
+
+Do not modify:
+
+- Home
+- Schedule
+- Social
+- Profile
+- Onboarding
+- Nutrition
+- Shop
+- Authentication
+- Existing chat functionality
+
+Only modify files required for Pump Match.
+
+## 14. Validation
+
+After implementation, verify:
+
+- Info expands in place without navigation.
+- Info collapses smoothly.
+- Vertical scrolling works inside expanded profile details.
+- Swipe left works from both collapsed and expanded states.
+- Swipe right works from both collapsed and expanded states.
+- Photo navigation works.
+- No Pass/Super/Match text remains.
+- No Send Message button appears before a match.
+- The 10 profiles use high-quality, age-appropriate fitness photos.
+- No elderly or poor-quality profiles appear.
+- Card transitions are smooth with no flicker or lag.
+- Match popup works correctly.
+- Send Message opens the matching user’s chat.
+- TypeScript check passes.
+- No unrelated screens were changed.
+
+At the end, provide:
+
+1. The exact root causes of the poor previous implementation.
+2. Every file modified.
+3. A concise summary of the new interaction flow.
+4. Any remaining limitations.
+
+Then stop and wait for my review.

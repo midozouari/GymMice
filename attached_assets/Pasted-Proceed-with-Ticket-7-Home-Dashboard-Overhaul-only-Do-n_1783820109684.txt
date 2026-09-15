@@ -1,0 +1,294 @@
+Proceed with **Ticket 7 — Home Dashboard Overhaul** only.
+
+Do not begin any other tickets after this one is complete.
+
+Preserve all existing functionality, navigation, styling and animations unless changes are required for this ticket.
+
+If you encounter an architectural conflict or need to make a design decision outside the scope of this ticket, stop and ask me before making changes.
+
+==========================================
+TICKET 7 — HOME DASHBOARD OVERHAUL
+==================================
+
+The goal of this ticket is to transform the Home page into a polished, modern, premium dashboard while preserving the GymMice design language.
+
+---
+
+1. Today's Workout
+
+---
+
+Move the existing "Today's Workout" card near the top of the Home page, immediately below the streak banner.
+
+This should become the primary focus of the dashboard.
+
+Improve the card by displaying:
+
+* Workout name (Push / Pull / Legs)
+* Target muscle groups
+* Number of exercises
+* Estimated workout duration
+* Scheduled workout time (if available from the Schedule page)
+* Large "Start Workout" button
+
+Do not remove any existing workout functionality.
+
+---
+
+2. Next Event
+
+---
+
+Immediately below Today's Workout, add a "Next Event" card.
+
+For now, automatically display the closest upcoming event from the Schedule page.
+
+Display:
+
+* Event title
+* Category
+* Date
+* Time
+* Countdown until the event starts
+* Appropriate category icon
+
+If no future event exists, display a friendly empty state such as:
+
+"No upcoming events."
+
+This section should already be prepared to work with future AI scheduling.
+
+---
+
+3. Today's Stats
+
+---
+
+Replace the existing Calories and Water cards with animated circular progress rings.
+
+Display:
+
+Calories:
+
+* Current
+* Goal
+* Remaining
+
+Water:
+
+* Current
+* Goal
+* Remaining
+
+Keep the Steps card, but animate it as well.
+
+The Workout card can remain but improve its visual consistency.
+
+---
+
+4. Animations
+
+---
+
+Whenever the Home page opens:
+
+Animate:
+
+* Progress rings
+* Step counter
+* Numbers
+* Progress values
+* Graphs
+
+Use smooth, premium animations.
+
+Nothing should instantly appear.
+
+---
+
+5. Session Progress
+
+---
+
+Keep the current graph as a preview.
+
+Add a "View Analytics" action.
+
+Selecting the graph or button should navigate to a new Analytics page.
+
+---
+
+6. Analytics Page
+
+---
+
+Create a dedicated analytics screen.
+
+Display three sections or tabs:
+
+* Push
+* Pull
+* Legs
+
+Each section should contain multiple exercise progress charts.
+
+Examples:
+
+Push
+
+* Bench Press
+* Incline DB Press
+* Shoulder Press
+* Cable Fly
+* Triceps Pushdown
+
+Pull
+
+* Pull Ups
+* Lat Pulldown
+* Barbell Row
+* Cable Row
+* Face Pull
+
+Legs
+
+* Squat
+* Romanian Deadlift
+* Leg Press
+* Leg Extension
+* Hamstring Curl
+
+Each exercise should have its own progress graph.
+
+The graphs should appear realistic.
+
+Avoid perfectly straight progression.
+
+Include:
+
+* Plateaus
+* Small regressions
+* Personal record jumps
+* Natural fluctuations
+
+---
+
+7. Meals
+
+---
+
+Keep today's meals section.
+
+Improve spacing and consistency with the rest of the dashboard.
+
+Do not redesign the nutrition system.
+
+---
+
+8. Rest Timer
+
+---
+
+Replace the current timer with a fully customizable timer.
+
+Keep the quick presets.
+
+Additionally allow the user to customize:
+
+Hours
+
+Minutes
+
+Seconds
+
+using plus and minus controls.
+
+Example:
+
+01 h
+
+35 m
+
+47 s
+
+The timer should no longer be limited to only:
+
+30s
+
+60s
+
+90s
+
+120s
+
+Keep the timer visually clean and premium.
+
+---
+
+9. Architecture
+
+---
+
+Prepare the dashboard so future features can easily integrate:
+
+* AI workout generation
+* AI schedule optimization
+* AI recommendations
+* Personal records
+* Estimated 1RM
+* Weekly volume
+* Monthly volume
+* Exercise history
+
+Do NOT implement those features yet.
+
+Only prepare the architecture.
+
+---
+
+10. User Experience
+
+---
+
+Maintain the current GymMice design language.
+
+Improve hierarchy, spacing and polish.
+
+Avoid unnecessary clutter.
+
+The dashboard should immediately answer these questions for the user:
+
+"What am I training today?"
+
+"When is my next event?"
+
+"How am I progressing?"
+
+"Am I on track with my nutrition?"
+
+"How long should I rest?"
+
+Everything should feel connected rather than like separate widgets.
+
+---
+
+11. Validation
+
+---
+
+After implementation:
+
+* Test all animations.
+* Test progress rings.
+* Test Today's Workout.
+* Test Next Event.
+* Test analytics navigation.
+* Test all three analytics tabs.
+* Test the customizable timer.
+* Verify presets still work.
+* Verify schedule integration works.
+* Verify existing functionality remains intact.
+* Run TypeScript checks.
+* Summarize every modified file.
+
+Then STOP and wait for my review before proceeding to the final ticket.

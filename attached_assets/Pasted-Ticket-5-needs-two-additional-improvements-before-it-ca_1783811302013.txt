@@ -1,0 +1,48 @@
+Ticket 5 needs two additional improvements before it can be considered fully complete. Do not proceed to Ticket 6 yet.
+
+## 1. Display the full 24-hour day
+
+Update the weekly timeline so it displays all hours of the day:
+
+00:00 through 23:00.
+
+Do not limit the timeline to 07:00–22:00.
+
+Requirements:
+
+* Keep the hour labels aligned correctly with the calendar grid.
+* Preserve proportional event positioning and duration.
+* The weekly calendar should remain smoothly scrollable.
+* When the Schedule page opens, automatically scroll to a sensible position, preferably near the current time, so the user is not forced to start at midnight every time.
+* The Today button should continue working correctly.
+* The current-time indicator must also work across the full 24-hour timeline.
+
+## 2. Create events directly from a selected time slot
+
+Keep the existing “+” button and Add Event modal exactly as an available event-creation method.
+
+In addition, allow the user to create an event directly from the weekly timeline:
+
+* Tapping an empty time slot should open the existing Add Event modal.
+* The selected calendar day must be pre-filled automatically.
+* The selected start time must be pre-filled automatically based on the tapped time slot.
+* Set a sensible default end time, such as one hour after the selected start time.
+* The user must still be able to edit the title, date, start time, end time, category, and notes before saving.
+* Saving should immediately place the event in the correct position in the weekly calendar.
+* Do not open the modal when the user is only scrolling the timeline.
+* Avoid accidental event creation caused by drag or scroll gestures.
+* Tapping an existing event should not create a new event. Preserve its current behavior, or open its details if such behavior already exists.
+
+Use the existing Add Event modal and event model rather than creating a duplicate event-creation flow.
+
+After implementing:
+
+* Test tapping empty morning, afternoon, evening, and late-night slots.
+* Test creating events on all seven days.
+* Verify the selected day and time are pre-filled correctly.
+* Verify normal scrolling does not accidentally open the modal.
+* Verify the existing “+” button still works.
+* Run the TypeScript check.
+* Summarize the exact files and logic changed.
+
+Then stop and wait for my review. Do not begin Ticket 6.

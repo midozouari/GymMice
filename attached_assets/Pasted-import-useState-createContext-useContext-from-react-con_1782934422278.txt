@@ -1,0 +1,1543 @@
+import { useState, createContext, useContext } from "react";
+
+const PALETTES = {
+  default:  { primary: "#1D9E75", accent: "#E8692A", navy: "#1E3A5F", bg: "#F7F8FA" },
+  pink:     { primary: "#E91E8C", accent: "#1A1A1A", navy: "#2D0A1E", bg: "#FFF0F7" },
+  military: { primary: "#4A5E3A", accent: "#8B8B6B", navy: "#2C3A20", bg: "#F4F5F0" },
+  mono:     { primary: "#111111", accent: "#555555", navy: "#000000", bg: "#F5F5F5" },
+  midnight: { primary: "#4B4BFF", accent: "#A78BFA", navy: "#0D0D2B", bg: "#F0F0FF" },
+};
+
+const ThemeCtx = createContext(PALETTES.default);
+const useTheme = () => useContext(ThemeCtx);
+
+const Logo = ({ size = 36 }) => {
+  const T = useTheme();
+  return (
+    <svg width={size * 2.2} height={size} viewBox="0 0 220 100" fill="none">
+      <path d="M30 75 Q110 20 190 75" stroke="#9CA3AF" strokeWidth="10" strokeLinecap="round" fill="none"/>
+      <rect x="8"  y="55" width="18" height="40" rx="5" fill="#9CA3AF"/>
+      <rect x="26" y="63" width="12" height="26" rx="4" fill="#9CA3AF"/>
+      <rect x="182" y="63" width="12" height="26" rx="4" fill="#9CA3AF"/>
+      <rect x="194" y="55" width="18" height="40" rx="5" fill="#9CA3AF"/>
+      <ellipse cx="42"  cy="52" rx="14" ry="14" fill="#9CA3AF"/>
+      <ellipse cx="42"  cy="52" rx="8"  ry="8"  fill={T.accent} opacity="0.9"/>
+      <ellipse cx="178" cy="52" rx="14" ry="14" fill="#9CA3AF"/>
+      <ellipse cx="178" cy="52" rx="8"  ry="8"  fill={T.accent} opacity="0.9"/>
+      <text x="68" y="62" fontFamily="'Arial Black',Arial,sans-serif" fontWeight="900" fontSize="34" fill={T.primary}>GYM</text>
+      <text x="62" y="92" fontFamily="'Arial Black',Arial,sans-serif" fontWeight="900" fontSize="34" fill={T.accent}>MICE</text>
+    </svg>
+  );
+};
+
+const NavBar = ({ active, setScreen }) => {
+  const T = useTheme();
+  const tabs = [
+    { id: "social",  icon: "👥", label: "Social" },
+    { id: "home",    icon: "🏠", label: "Home"   },
+    { id: "profile", icon: "👤", label: "Profile" },
+  ];
+  return (
+    <div style={{ position: "sticky", bottom: 0, background: T.navy, display: "flex", justifyContent: "space-around", padding: "10px 0 14px", borderTop: `1px solid rgba(255,255,255,0.1)`, zIndex: 100 }}>
+      {tabs.map(t => (
+        <button key={t.id} onClick={() => setScreen(t.id)} style={{ background: "none", border: "none", display: "flex", flexDirection: "column", alignItems: "center", gap: 2, cursor: "pointer", opacity: active === t.id ? 1 : 0.45 }}>
+          <span style={{ fontSize: 22 }}>{t.icon}</span>
+          <span style={{ fontSize: 10, fontWeight: 700, color: active === t.id ? T.accent : "#fff", letterSpacing: "0.03em" }}>{t.label}</span>
+        </button>
+      ))}
+    </div>
+  );
+};
+
+const TopBar = ({ title, onBack, right }) => {
+  const T = useTheme();
+  return (
+    <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "16px 20px 12px", background: "#fff", borderBottom: "1px solid #E5E7EB" }}>
+      <div style={{ width: 36 }}>
+        {onBack && <button onClick={onBack} style={{ background: "none", border: "1.5px solid #E5E7EB", borderRadius: 10, padding: "5px 10px", cursor: "pointer", fontSize: 16 }}>←</button>}
+      </div>
+      <span style={{ fontWeight: 800, fontSize: 17, color: "#1A1A2E" }}>{title}</span>
+      <div style={{ width: 36, display: "flex", justifyContent: "flex-end" }}>{right}</div>
+    </div>
+  );
+};
+
+function SplashScreen({ next }) {
+  const T = useTheme();
+  return (
+    <div style={{ minHeight: "100vh", background: "#ffffff", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 24 }}>
+      <Logo size={52} />
+      <p style={{ color: "#6B7280", fontSize: 13, letterSpacing: "0.2em", textTransform: "uppercase" }}>Train · Eat · Connect</p>
+      <button onClick={next} style={{ marginTop: 32, padding: "13px 40px", background: T.accent, border: "none", borderRadius: 30, color: "#fff", fontWeight: 800, fontSize: 16, cursor: "pointer" }}>Get Started</button>
+    </div>
+  );
+}
+
+function SignInScreen({ setScreen }) {
+  const T = useTheme();
+  return (
+    <div style={{ minHeight: "100vh", background: T.bg, display: "flex", flexDirection: "column", alignItems: "center", padding: "48px 28px 32px" }}>
+      <Logo size={42} />
+      <h2 style={{ marginTop: 28, marginBottom: 28, fontSize: 24, fontWeight: 800, color: "#1A1A2E" }}>Sign in</h2>
+      <div style={{ width: "100%", maxWidth: 360, display: "flex", flexDirection: "column", gap: 14 }}>
+        <Input placeholder="Username" />
+        <Input placeholder="Password" type="password" />
+        <div style={{ textAlign: "right" }}>
+          <span style={{ color: T.accent, fontSize: 13, fontWeight: 600, cursor: "pointer" }}>Forgot password?</span>
+        </div>
+        <Btn label="Sign in" color={T.primary} onClick={() => setScreen("home")} />
+        <Divider />
+        <SocialBtn icon="🍎" label="Continue with Apple"    onClick={() => setScreen("home")} />
+        <SocialBtn icon="🔵" label="Continue with Google"   onClick={() => setScreen("home")} />
+        <SocialBtn icon="📘" label="Continue with Facebook" onClick={() => setScreen("home")} />
+        <p style={{ textAlign: "center", marginTop: 12, fontSize: 14, color: "#6B7280" }}>
+          Don't have an account?{" "}
+          <span style={{ color: T.accent, fontWeight: 700, cursor: "pointer" }} onClick={() => setScreen("signup")}>Sign up</span>
+        </p>
+      </div>
+    </div>
+  );
+}
+
+function SignUpScreen({ setScreen }) {
+  const T = useTheme();
+  return (
+    <div style={{ minHeight: "100vh", background: T.bg, display: "flex", flexDirection: "column", alignItems: "center", padding: "48px 28px 32px" }}>
+      <Logo size={42} />
+      <h2 style={{ marginTop: 28, marginBottom: 28, fontSize: 24, fontWeight: 800, color: "#1A1A2E" }}>Sign up</h2>
+      <div style={{ width: "100%", maxWidth: 360, display: "flex", flexDirection: "column", gap: 14 }}>
+        <Input placeholder="Username" />
+        <Input placeholder="Email" />
+        <Input placeholder="Password" type="password" />
+        <Input placeholder="Confirm password" type="password" />
+        <Btn label="Sign up" color={T.primary} onClick={() => setScreen("onboarding")} />
+        <Divider />
+        <SocialBtn icon="🍎" label="Continue with Apple"    onClick={() => setScreen("onboarding")} />
+        <SocialBtn icon="🔵" label="Continue with Google"   onClick={() => setScreen("onboarding")} />
+        <SocialBtn icon="📘" label="Continue with Facebook" onClick={() => setScreen("onboarding")} />
+        <p style={{ textAlign: "center", marginTop: 12, fontSize: 14, color: "#6B7280" }}>
+          Already have an account?{" "}
+          <span style={{ color: T.accent, fontWeight: 700, cursor: "pointer" }} onClick={() => setScreen("signin")}>Sign in</span>
+        </p>
+      </div>
+    </div>
+  );
+}
+
+const ONBOARDING_STEPS = 5;
+function OnboardingScreen({ setScreen, setPalette, palette }) {
+  const T = useTheme();
+  const [step, setStep] = useState(1);
+  const [gender, setGender] = useState("");
+  const [goal, setGoal] = useState("");
+  const [days, setDays] = useState(3);
+  const [prefs, setPrefs] = useState([]);
+
+  const paletteDefs = [
+    { id: "default",  label: "Default",  a: "#1D9E75", b: "#E8692A" },
+    { id: "pink",     label: "Pink",     a: "#E91E8C", b: "#1A1A1A" },
+    { id: "military", label: "Military", a: "#4A5E3A", b: "#8B8B6B" },
+    { id: "mono",     label: "Mono",     a: "#111111", b: "#555555" },
+    { id: "midnight", label: "Midnight", a: "#4B4BFF", b: "#A78BFA" },
+  ];
+  const exercises = ["Weight training", "Cardio", "Bodyweight", "HIIT", "Yoga", "Swimming"];
+  const goals     = ["Lean", "Muscular", "Toned", "Maintain"];
+  const describes = ["Athlete", "Student", "Working adult"];
+  const progress  = (step / ONBOARDING_STEPS) * 100;
+
+  return (
+    <div style={{ minHeight: "100vh", background: T.bg, display: "flex", flexDirection: "column" }}>
+      <div style={{ padding: "20px 24px 0" }}>
+        <Logo size={32} />
+        <div style={{ marginTop: 16, height: 4, background: "#E5E7EB", borderRadius: 2 }}>
+          <div style={{ height: "100%", width: `${progress}%`, background: T.accent, borderRadius: 2, transition: "width 0.3s" }} />
+        </div>
+        <p style={{ fontSize: 12, color: "#6B7280", marginTop: 6 }}>Step {step} of {ONBOARDING_STEPS}</p>
+      </div>
+
+      <div style={{ flex: 1, padding: "24px 24px 0", overflowY: "auto" }}>
+        {step === 1 && (
+          <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
+            <h2 style={{ fontSize: 22, fontWeight: 800, color: "#1A1A2E" }}>Hi there! Welcome to GymMice 👋</h2>
+            <p style={{ fontWeight: 700, fontSize: 13, color: "#6B7280" }}>Gender</p>
+            <div style={{ display: "flex", gap: 12 }}>
+              {["Male", "Female"].map(g => (
+                <button key={g} onClick={() => setGender(g)} style={{ flex: 1, padding: "14px", borderRadius: 12, border: `2px solid ${gender === g ? T.accent : "#E5E7EB"}`, background: gender === g ? T.accent + "22" : "#fff", fontWeight: 700, fontSize: 15, color: gender === g ? T.accent : "#6B7280", cursor: "pointer" }}>{g}</button>
+              ))}
+            </div>
+            <p style={{ fontWeight: 700, fontSize: 13, color: "#6B7280" }}>Height</p>
+            <div style={{ display: "flex", gap: 10 }}>
+              <input placeholder="e.g. 175" style={{ ...iStyle, flex: 1 }} />
+              <select style={selStyle}><option>cm</option><option>ft</option></select>
+            </div>
+            <p style={{ fontWeight: 700, fontSize: 13, color: "#6B7280" }}>Weight</p>
+            <div style={{ display: "flex", gap: 10 }}>
+              <input placeholder="e.g. 70" style={{ ...iStyle, flex: 1 }} />
+              <select style={selStyle}><option>kg</option><option>lbs</option></select>
+            </div>
+          </div>
+        )}
+        {step === 2 && (
+          <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+            <h2 style={{ fontSize: 22, fontWeight: 800, color: "#1A1A2E" }}>What describes you best?</h2>
+            {describes.map(d => (
+              <button key={d} onClick={() => setGoal(d)} style={{ padding: "16px", borderRadius: 12, border: `2px solid ${goal === d ? T.accent : "#E5E7EB"}`, background: goal === d ? T.accent + "18" : "#fff", fontWeight: 700, fontSize: 16, color: goal === d ? T.accent : "#1A1A2E", cursor: "pointer", textAlign: "left" }}>{d}</button>
+            ))}
+            <p style={{ fontWeight: 700, fontSize: 13, color: "#6B7280" }}>Gym experience?</p>
+            <div style={{ display: "flex", gap: 12 }}>
+              {["Yes", "No"].map(g => (
+                <button key={g} onClick={() => setGender(g)} style={{ flex: 1, padding: "13px", borderRadius: 12, border: `2px solid ${gender === g ? T.primary : "#E5E7EB"}`, background: gender === g ? T.primary + "18" : "#fff", fontWeight: 700, fontSize: 15, color: gender === g ? T.primary : "#6B7280", cursor: "pointer" }}>{g}</button>
+              ))}
+            </div>
+          </div>
+        )}
+        {step === 3 && (
+          <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
+            <h2 style={{ fontSize: 22, fontWeight: 800, color: "#1A1A2E" }}>Exercise preferences</h2>
+            <div style={{ display: "flex", flexWrap: "wrap", gap: 10 }}>
+              {exercises.map(e => {
+                const on = prefs.includes(e);
+                return (
+                  <button key={e} onClick={() => setPrefs(p => on ? p.filter(x => x !== e) : [...p, e])} style={{ padding: "10px 16px", borderRadius: 20, border: `2px solid ${on ? T.primary : "#E5E7EB"}`, background: on ? T.primary + "18" : "#fff", fontWeight: 600, fontSize: 14, color: on ? T.primary : "#6B7280", cursor: "pointer" }}>{e}</button>
+                );
+              })}
+            </div>
+            <p style={{ fontWeight: 700, fontSize: 13, color: "#6B7280" }}>Days per week: {days}</p>
+            <input type="range" min={1} max={7} value={days} onChange={e => setDays(+e.target.value)} style={{ accentColor: T.accent, width: "100%" }} />
+            <div style={{ display: "flex", justifyContent: "space-between" }}>
+              {[1,2,3,4,5,6,7].map(n => <span key={n} style={{ fontSize: 12, color: n === days ? T.accent : "#6B7280", fontWeight: n === days ? 800 : 400 }}>{n}</span>)}
+            </div>
+          </div>
+        )}
+        {step === 4 && (
+          <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
+            <h2 style={{ fontSize: 22, fontWeight: 800, color: "#1A1A2E" }}>Your goal physique</h2>
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12 }}>
+              {goals.map(g => (
+                <button key={g} onClick={() => setGoal(g)} style={{ padding: "28px 10px", borderRadius: 14, border: `2px solid ${goal === g ? T.accent : "#E5E7EB"}`, background: goal === g ? T.accent + "18" : "#fff", fontWeight: 700, fontSize: 16, color: goal === g ? T.accent : "#1A1A2E", cursor: "pointer" }}>
+                  {g === "Lean" ? "🏃" : g === "Muscular" ? "💪" : g === "Toned" ? "⚡" : "🧘"}<br />{g}
+                </button>
+              ))}
+            </div>
+            <p style={{ fontWeight: 700, fontSize: 13, color: "#6B7280" }}>Any chronic illnesses? (optional)</p>
+            <textarea placeholder="e.g. asthma, knee injury..." style={{ ...iStyle, height: 80, resize: "none" }} />
+          </div>
+        )}
+        {step === 5 && (
+          <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
+            <h2 style={{ fontSize: 22, fontWeight: 800, color: "#1A1A2E" }}>Pick your palette</h2>
+            <p style={{ color: "#6B7280", fontSize: 14 }}>Personalize the app look. You can change this anytime in Profile.</p>
+            {paletteDefs.map(p => (
+              <button key={p.id} onClick={() => setPalette(p.id)} style={{ display: "flex", alignItems: "center", gap: 14, padding: "14px 16px", borderRadius: 12, border: `2px solid ${palette === p.id ? T.accent : "#E5E7EB"}`, background: palette === p.id ? T.accent + "14" : "#fff", cursor: "pointer" }}>
+                <div style={{ display: "flex", gap: 6 }}>
+                  <div style={{ width: 26, height: 26, borderRadius: 6, background: p.a }} />
+                  <div style={{ width: 26, height: 26, borderRadius: 6, background: p.b, border: "1px solid #E5E7EB" }} />
+                </div>
+                <span style={{ fontWeight: 700, fontSize: 15, color: palette === p.id ? T.accent : "#1A1A2E" }}>{p.label}</span>
+                {palette === p.id && <span style={{ marginLeft: "auto", color: T.accent, fontWeight: 900 }}>✓</span>}
+              </button>
+            ))}
+            <p style={{ fontSize: 13, color: "#6B7280" }}>The app colors update live as you select above.</p>
+          </div>
+        )}
+      </div>
+
+      <div style={{ padding: "20px 24px 32px", display: "flex", gap: 12, background: T.bg }}>
+        {step > 1 && (
+          <button onClick={() => setStep(s => s - 1)} style={{ flex: 0.4, padding: "14px", borderRadius: 12, border: "1.5px solid #E5E7EB", background: "#fff", fontWeight: 700, fontSize: 15, color: "#6B7280", cursor: "pointer" }}>Back</button>
+        )}
+        <button onClick={() => step < ONBOARDING_STEPS ? setStep(s => s + 1) : setScreen("home")} style={{ flex: 1, padding: "14px", borderRadius: 12, border: "none", background: T.accent, fontWeight: 800, fontSize: 16, color: "#fff", cursor: "pointer" }}>
+          {step < ONBOARDING_STEPS ? "Continue" : "Let's go 🎉"}
+        </button>
+      </div>
+    </div>
+  );
+}
+
+const WORKOUT = {
+  name: "Push Day",
+  muscles: ["Chest", "Shoulders", "Triceps"],
+  exercises: [
+    { group: "Chest",     moves: ["Bench press", "Incline DB press", "H2L cable flies"] },
+    { group: "Shoulders", moves: ["Lateral raises", "German raises"] },
+    { group: "Triceps",   moves: ["Cable tricep extension", "Skull crusher"] },
+  ],
+};
+
+function HomeScreen({ setScreen }) {
+  const T = useTheme();
+  const [showWorkout, setShowWorkout] = useState(false);
+  const [timerSecs, setTimerSecs] = useState(60);
+  const [timerRunning, setTimerRunning] = useState(false);
+
+  const stats = [
+    { label: "Calories", value: "1,840", unit: "/ 2,200 kcal", color: T.accent },
+    { label: "Water",    value: "1.8L",  unit: "/ 2.5L",       color: "#3B8BD4" },
+    { label: "Steps",    value: "6,420", unit: "/ 10,000",      color: T.primary },
+    { label: "Workout",  value: "Push",  unit: "day",           color: "#7C3AED" },
+  ];
+  const meals = [
+    { label: "Breakfast", name: "Oatmeal & fruits",      kcal: 420, emoji: "🥣" },
+    { label: "Lunch",     name: "Grilled chicken bowl",  kcal: 680, emoji: "🥗" },
+    { label: "Dinner",    name: "Salmon & quinoa",       kcal: 740, emoji: "🍣" },
+  ];
+  const quickLinks = [
+    { icon: "📅", label: "Schedule",   action: () => setScreen("schedule") },
+    { icon: "🥗", label: "Nutrition",  action: () => setScreen("nutrition") },
+    { icon: "💪", label: "Pump Match", action: () => setScreen("pumpmatch") },
+    { icon: "🛒", label: "Shop",       action: () => setScreen("shop") },
+  ];
+  const sessionCurves = [
+    { label: "Push",  color: T.accent,   pts: "0,80 50,60 100,50 150,35 200,28 250,18 300,12" },
+    { label: "Pull",  color: T.primary,  pts: "0,85 50,70 100,65 150,55 200,45 250,35 300,28" },
+    { label: "Legs",  color: "#7C3AED",  pts: "0,90 50,80 100,72 150,60 200,55 250,42 300,35" },
+  ];
+
+  return (
+    <div style={{ flex: 1, overflowY: "auto", background: T.bg }}>
+      {/* Header */}
+      <div style={{ padding: "20px 20px 12px", background: "#fff", display: "flex", alignItems: "center", justifyContent: "space-between", borderBottom: "1px solid #E5E7EB" }}>
+        <div>
+          <Logo size={28} />
+          <p style={{ fontSize: 13, color: "#6B7280", marginTop: 4 }}>Good morning, Mido 👋</p>
+        </div>
+        <div style={{ display: "flex", gap: 12, alignItems: "center" }}>
+          <span style={{ fontSize: 22, cursor: "pointer" }}>🔔</span>
+          <div style={{ width: 36, height: 36, borderRadius: "50%", background: T.primary, display: "flex", alignItems: "center", justifyContent: "center", color: "#fff", fontWeight: 800, fontSize: 14, cursor: "pointer" }} onClick={() => setScreen("profile")}>M</div>
+        </div>
+      </div>
+
+      {/* Streak */}
+      <div style={{ padding: "14px 20px", background: T.accent, display: "flex", alignItems: "center", gap: 10 }}>
+        <span style={{ fontSize: 22 }}>🔥</span>
+        <div>
+          <p style={{ color: "#fff", fontWeight: 800, fontSize: 14 }}>7-day streak! Keep it up</p>
+          <p style={{ color: "rgba(255,255,255,0.75)", fontSize: 12 }}>You're on fire — don't break the chain</p>
+        </div>
+      </div>
+
+      {/* Quick links */}
+      <div style={{ padding: "16px 20px 0" }}>
+        <p style={{ fontWeight: 800, fontSize: 13, color: "#6B7280", textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 12 }}>Quick access</p>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(4,1fr)", gap: 10 }}>
+          {quickLinks.map(q => (
+            <button key={q.label} onClick={q.action} style={{ background: "#fff", border: "1.5px solid #E5E7EB", borderRadius: 14, padding: "14px 6px", display: "flex", flexDirection: "column", alignItems: "center", gap: 6, cursor: "pointer" }}>
+              <span style={{ fontSize: 24 }}>{q.icon}</span>
+              <span style={{ fontSize: 11, fontWeight: 700, color: "#1A1A2E" }}>{q.label}</span>
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* Stats */}
+      <div style={{ padding: "16px 20px 0" }}>
+        <p style={{ fontWeight: 800, fontSize: 13, color: "#6B7280", textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 12 }}>Today's stats</p>
+        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
+          {stats.map(s => (
+            <div key={s.label} style={{ background: "#fff", borderRadius: 14, padding: "14px 16px" }}>
+              <p style={{ fontSize: 11, color: "#6B7280", fontWeight: 600, marginBottom: 4 }}>{s.label}</p>
+              <p style={{ fontSize: 22, fontWeight: 900, color: s.color, letterSpacing: "-0.5px" }}>{s.value}</p>
+              <p style={{ fontSize: 11, color: "#6B7280" }}>{s.unit}</p>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Progress graph */}
+      <div style={{ padding: "16px 20px 0" }}>
+        <p style={{ fontWeight: 800, fontSize: 13, color: "#6B7280", textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 12 }}>Session progress</p>
+        <div style={{ background: "#fff", borderRadius: 14, padding: "16px" }}>
+          <svg width="100%" height="110" viewBox="0 0 300 110" preserveAspectRatio="none">
+            <line x1="0" y1="100" x2="300" y2="100" stroke="#E5E7EB" strokeWidth="1"/>
+            {sessionCurves.map(c => (
+              <polyline key={c.label} points={c.pts} fill="none" stroke={c.color} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/>
+            ))}
+          </svg>
+          <div style={{ display: "flex", gap: 16, marginTop: 8 }}>
+            {sessionCurves.map(c => (
+              <div key={c.label} style={{ display: "flex", alignItems: "center", gap: 5 }}>
+                <div style={{ width: 10, height: 10, borderRadius: "50%", background: c.color }} />
+                <span style={{ fontSize: 11, fontWeight: 700, color: "#6B7280" }}>{c.label}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      {/* Today's workout */}
+      <div style={{ padding: "16px 20px 0" }}>
+        <p style={{ fontWeight: 800, fontSize: 13, color: "#6B7280", textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 12 }}>Today's workout</p>
+        <div style={{ background: "#fff", borderRadius: 14, overflow: "hidden" }}>
+          <button onClick={() => setShowWorkout(w => !w)} style={{ width: "100%", padding: "16px", display: "flex", alignItems: "center", gap: 14, border: "none", background: "transparent", cursor: "pointer", textAlign: "left" }}>
+            <div style={{ width: 52, height: 52, borderRadius: 12, background: "#EDE9FE", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 24, flexShrink: 0 }}>💪</div>
+            <div style={{ flex: 1 }}>
+              <p style={{ fontWeight: 800, fontSize: 16, color: "#1A1A2E" }}>{WORKOUT.name}</p>
+              <div style={{ display: "flex", gap: 6, marginTop: 6, flexWrap: "wrap" }}>
+                {WORKOUT.muscles.map(m => (
+                  <span key={m} style={{ fontSize: 11, fontWeight: 700, padding: "3px 8px", borderRadius: 20, background: "#EDE9FE", color: "#7C3AED" }}>{m}</span>
+                ))}
+              </div>
+            </div>
+            <span style={{ fontSize: 18, color: "#6B7280", transition: "transform 0.2s", transform: showWorkout ? "rotate(180deg)" : "rotate(0deg)" }}>›</span>
+          </button>
+          {showWorkout && (
+            <div style={{ borderTop: "1px solid #E5E7EB", padding: "14px 16px", display: "flex", flexDirection: "column", gap: 16 }}>
+              {WORKOUT.exercises.map(group => (
+                <div key={group.group}>
+                  <p style={{ fontWeight: 800, fontSize: 14, color: T.primary, marginBottom: 8 }}>{group.group}</p>
+                  {group.moves.map(m => (
+                    <div key={m} style={{ display: "flex", alignItems: "center", gap: 10, padding: "7px 0", borderBottom: "1px solid #F3F4F6" }}>
+                      <div style={{ width: 6, height: 6, borderRadius: "50%", background: T.accent, flexShrink: 0 }} />
+                      <span style={{ fontSize: 14, color: "#1A1A2E", fontWeight: 500 }}>{m}</span>
+                    </div>
+                  ))}
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* Today's meals */}
+      <div style={{ padding: "16px 20px 0" }}>
+        <p style={{ fontWeight: 800, fontSize: 13, color: "#6B7280", textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 12 }}>Today's meals</p>
+        <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+          {meals.map(m => (
+            <div key={m.label} onClick={() => setScreen("nutrition")} style={{ background: "#fff", borderRadius: 14, padding: "14px 16px", display: "flex", alignItems: "center", gap: 14, cursor: "pointer" }}>
+              <span style={{ fontSize: 28 }}>{m.emoji}</span>
+              <div style={{ flex: 1 }}>
+                <p style={{ fontSize: 11, color: "#6B7280", fontWeight: 600 }}>{m.label}</p>
+                <p style={{ fontWeight: 700, fontSize: 15, color: "#1A1A2E" }}>{m.name}</p>
+              </div>
+              <p style={{ fontWeight: 800, fontSize: 14, color: T.accent }}>{m.kcal} kcal</p>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Rest timer — inline at bottom */}
+      <div style={{ padding: "16px 20px 32px" }}>
+        <p style={{ fontWeight: 800, fontSize: 13, color: "#6B7280", textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 12 }}>Rest timer</p>
+        <div style={{ background: "#fff", borderRadius: 14, padding: "20px" }}>
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 16 }}>
+            <span style={{ fontSize: 36, fontWeight: 900, color: "#1A1A2E", fontVariantNumeric: "tabular-nums" }}>
+              {String(Math.floor(timerSecs / 60)).padStart(2, "0")}:{String(timerSecs % 60).padStart(2, "0")}
+            </span>
+            <div style={{ display: "flex", gap: 8 }}>
+              {[30, 60, 90, 120].map(t => (
+                <button key={t} onClick={() => { setTimerSecs(t); setTimerRunning(false); }} style={{ padding: "6px 10px", borderRadius: 20, border: `1.5px solid ${timerSecs === t ? T.accent : "#E5E7EB"}`, background: timerSecs === t ? T.accent + "18" : "#fff", fontSize: 12, fontWeight: 700, color: timerSecs === t ? T.accent : "#6B7280", cursor: "pointer" }}>{t}s</button>
+              ))}
+            </div>
+          </div>
+          <div style={{ height: 4, background: "#E5E7EB", borderRadius: 2, marginBottom: 16 }}>
+            <div style={{ height: "100%", width: `${(timerSecs / 120) * 100}%`, background: T.primary, borderRadius: 2 }} />
+          </div>
+          <div style={{ display: "flex", gap: 10 }}>
+            <button onClick={() => setTimerRunning(r => !r)} style={{ flex: 1, padding: "12px", borderRadius: 12, border: "none", background: T.accent, color: "#fff", fontWeight: 800, fontSize: 15, cursor: "pointer" }}>
+              {timerRunning ? "⏸ Pause" : "▶ Start"}
+            </button>
+            <button onClick={() => { setTimerSecs(60); setTimerRunning(false); }} style={{ padding: "12px 16px", borderRadius: 12, border: "1.5px solid #E5E7EB", background: "#fff", fontWeight: 700, fontSize: 14, color: "#6B7280", cursor: "pointer" }}>Reset</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ── STORIES DATA ──────────────────────────────────────────────────────────────
+const STORIES = [
+  { id: 1, user: "You",     avatar: "M",  seen: true,  slides: [
+    { bg: "#1D9E75", emoji: "💪", caption: "Push day done 🔥" },
+  ]},
+  { id: 2, user: "Youssef", avatar: "YB", seen: false, slides: [
+    { bg: "#E8692A", emoji: "🏋️", caption: "100kg bench PR today 🎉" },
+    { bg: "#c0430a", emoji: "🔥", caption: "Never skipping again fr" },
+    { bg: "#8B3000", emoji: "😤", caption: "Grind never stops 💯" },
+  ]},
+  { id: 3, user: "Hannah",  avatar: "HH", seen: false, slides: [
+    { bg: "#3B8BD4", emoji: "🥗", caption: "Meal prep Sunday 🍱" },
+    { bg: "#1a5fa0", emoji: "📊", caption: "Macros on point this week" },
+  ]},
+  { id: 4, user: "Ben",     avatar: "B",  seen: false, slides: [
+    { bg: "#7C3AED", emoji: "🏃", caption: "Morning run at 6am 😤" },
+  ]},
+  { id: 5, user: "Paulo",   avatar: "P",  seen: true,  slides: [
+    { bg: "#D94040", emoji: "🦾", caption: "New gym fit just dropped" },
+    { bg: "#9a1a1a", emoji: "👟", caption: "Ready for leg day" },
+  ]},
+];
+
+// ── POSTS DATA ────────────────────────────────────────────────────────────────
+const INIT_POSTS = [
+  {
+    id: 1, user: "Youssef B.", anon: false, avatar: "YB", time: "2m ago",
+    text: "New PR on bench today! 100kg finally 🔥💪",
+    reactions: { "💪": 18, "🔥": 14, "❤️": 7, "😂": 3 },
+    comments: [
+      { id: 1, user: "Hannah H.", avatar: "HH", text: "Let's gooo! Proud of you 🎉", time: "1m ago" },
+      { id: 2, user: "Mido",      avatar: "M",  text: "Insane bro, you worked for this 💯", time: "1m ago" },
+      { id: 3, user: "Ben",       avatar: "B",  text: "Next stop 120kg 👀",  time: "30s ago" },
+      { id: 4, user: "Paulo",     avatar: "P",  text: "Deadlifts next 😤",   time: "20s ago" },
+      { id: 5, user: "Kieron D.", avatar: "K",  text: "Respect 🤝",          time: "10s ago" },
+    ],
+  },
+  {
+    id: 2, user: "Anonymous 🥷", anon: true, avatar: "🥷", time: "15m ago",
+    text: "Does anyone else get anxious asking for help at the gym? Just started and I don't know what I'm doing lol",
+    reactions: { "💪": 34, "🔥": 12, "❤️": 29, "😂": 12 },
+    comments: [
+      { id: 1, user: "Mido",      avatar: "M",  text: "100% normal, everyone starts somewhere 🙏", time: "14m ago" },
+      { id: 2, user: "Hannah H.", avatar: "HH", text: "I felt the exact same way. Gets easier!", time: "13m ago" },
+      { id: 3, user: "Paulo",     avatar: "P",  text: "Just ask, most people are happy to help",  time: "12m ago" },
+      { id: 4, user: "Anonymous 🥷", avatar: "🥷", text: "Same here, you're not alone 🤝", time: "10m ago" },
+      { id: 5, user: "Youssef B.", avatar: "YB", text: "DM me if you need a program!",   time: "8m ago"  },
+      { id: 6, user: "Ben",        avatar: "B",  text: "Gym anxiety is real. Keep showing up!", time: "5m ago" },
+    ],
+  },
+  {
+    id: 3, user: "Healthy Hannah", anon: false, avatar: "HH", time: "1h ago",
+    text: "Post-workout salmon & quinoa. Hitting those macros 💯",
+    reactions: { "💪": 8, "🔥": 11, "❤️": 10, "😂": 2 },
+    comments: [
+      { id: 1, user: "Mido",      avatar: "M",  text: "Recipe? 👀",  time: "58m ago" },
+      { id: 2, user: "Youssef B.", avatar: "YB", text: "Looks fire 🔥", time: "50m ago" },
+      { id: 3, user: "Paulo",     avatar: "P",  text: "What's your macro split?", time: "45m ago" },
+    ],
+  },
+];
+
+// ── STORY VIEWER ──────────────────────────────────────────────────────────────
+function StoryViewer({ story, onClose, onReply, allStories, setStoryIdx }) {
+  const T = useTheme();
+  const [slideIdx, setSlideIdx] = useState(0);
+  const [replyText, setReplyText] = useState("");
+  const [replySent, setReplySent] = useState(false);
+  const slide = story.slides[slideIdx];
+  const progress = ((slideIdx + 1) / story.slides.length) * 100;
+
+  const goNext = () => {
+    if (slideIdx < story.slides.length - 1) setSlideIdx(i => i + 1);
+    else {
+      const nextIdx = allStories.findIndex(s => s.id === story.id) + 1;
+      if (nextIdx < allStories.length) { setStoryIdx(nextIdx); setSlideIdx(0); }
+      else onClose();
+    }
+  };
+  const goPrev = () => {
+    if (slideIdx > 0) setSlideIdx(i => i - 1);
+    else {
+      const prevIdx = allStories.findIndex(s => s.id === story.id) - 1;
+      if (prevIdx >= 0) { setStoryIdx(prevIdx); setSlideIdx(0); }
+    }
+  };
+  const sendReply = () => {
+    if (!replyText.trim()) return;
+    onReply(story.user, replyText.trim());
+    setReplySent(true);
+    setReplyText("");
+    setTimeout(() => setReplySent(false), 2000);
+  };
+
+  return (
+    <div style={{ position: "fixed", inset: 0, zIndex: 999, background: "#000", display: "flex", flexDirection: "column", maxWidth: 430, margin: "0 auto" }}>
+      {/* Progress bars */}
+      <div style={{ display: "flex", gap: 4, padding: "12px 12px 8px" }}>
+        {story.slides.map((_, i) => (
+          <div key={i} style={{ flex: 1, height: 3, borderRadius: 2, background: "rgba(255,255,255,0.3)", overflow: "hidden" }}>
+            <div style={{ height: "100%", background: "#fff", width: i < slideIdx ? "100%" : i === slideIdx ? "60%" : "0%", transition: i === slideIdx ? "width 5s linear" : "none" }} />
+          </div>
+        ))}
+      </div>
+
+      {/* Header */}
+      <div style={{ display: "flex", alignItems: "center", gap: 10, padding: "0 14px 12px" }}>
+        <div style={{ width: 36, height: 36, borderRadius: "50%", background: T.primary, display: "flex", alignItems: "center", justifyContent: "center", color: "#fff", fontWeight: 800, fontSize: 13, border: "2px solid #fff" }}>{story.avatar}</div>
+        <span style={{ fontWeight: 700, fontSize: 14, color: "#fff" }}>{story.user}</span>
+        <span style={{ fontSize: 12, color: "rgba(255,255,255,0.6)" }}>now</span>
+        <button onClick={onClose} style={{ marginLeft: "auto", background: "none", border: "none", color: "#fff", fontSize: 22, cursor: "pointer" }}>✕</button>
+      </div>
+
+      {/* Story slide */}
+      <div style={{ flex: 1, background: slide.bg, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", position: "relative" }}>
+        <div style={{ fontSize: 80, marginBottom: 20 }}>{slide.emoji}</div>
+        <p style={{ color: "#fff", fontSize: 18, fontWeight: 700, textAlign: "center", padding: "0 24px" }}>{slide.caption}</p>
+
+        {/* Tap zones */}
+        <div onClick={goPrev} style={{ position: "absolute", left: 0, top: 0, bottom: 0, width: "40%", cursor: "pointer" }} />
+        <div onClick={goNext} style={{ position: "absolute", right: 0, top: 0, bottom: 0, width: "40%", cursor: "pointer" }} />
+      </div>
+
+      {/* Reply bar */}
+      {replySent ? (
+        <div style={{ padding: "14px 16px 28px", background: "rgba(0,0,0,0.8)", textAlign: "center" }}>
+          <p style={{ color: T.primary, fontWeight: 700, fontSize: 14 }}>✓ Reply sent — check your DMs!</p>
+        </div>
+      ) : (
+        <div style={{ padding: "10px 14px 28px", background: "rgba(0,0,0,0.7)", display: "flex", gap: 10, alignItems: "center" }}>
+          <input
+            value={replyText}
+            onChange={e => setReplyText(e.target.value)}
+            onKeyDown={e => e.key === "Enter" && sendReply()}
+            placeholder={`Reply to ${story.user}...`}
+            style={{ flex: 1, padding: "10px 14px", borderRadius: 22, border: "1.5px solid rgba(255,255,255,0.3)", background: "rgba(255,255,255,0.1)", color: "#fff", fontSize: 14, outline: "none" }}
+          />
+          <button onClick={sendReply} style={{ width: 38, height: 38, borderRadius: "50%", border: "none", background: replyText.trim() ? T.primary : "rgba(255,255,255,0.2)", color: "#fff", fontSize: 16, cursor: "pointer" }}>➤</button>
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ── COMMENTS SHEET ────────────────────────────────────────────────────────────
+function CommentsSheet({ post, onClose, onAddComment }) {
+  const T = useTheme();
+  const [text, setText] = useState("");
+
+  const send = () => {
+    if (!text.trim()) return;
+    onAddComment(post.id, text.trim());
+    setText("");
+  };
+
+  return (
+    <div style={{ position: "fixed", inset: 0, zIndex: 998, display: "flex", flexDirection: "column", justifyContent: "flex-end", maxWidth: 430, margin: "0 auto" }}>
+      <div onClick={onClose} style={{ flex: 1, background: "rgba(0,0,0,0.5)" }} />
+      <div style={{ background: "#fff", borderRadius: "20px 20px 0 0", maxHeight: "75vh", display: "flex", flexDirection: "column" }}>
+        {/* Handle */}
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", padding: "14px 20px 10px" }}>
+          <span style={{ fontWeight: 800, fontSize: 16, color: "#1A1A2E" }}>Comments ({post.comments.length})</span>
+          <button onClick={onClose} style={{ background: "none", border: "none", fontSize: 20, cursor: "pointer", color: "#6B7280" }}>✕</button>
+        </div>
+        <div style={{ height: 1, background: "#E5E7EB" }} />
+
+        {/* Comments list */}
+        <div style={{ flex: 1, overflowY: "auto", padding: "12px 16px", display: "flex", flexDirection: "column", gap: 14 }}>
+          {post.comments.map(c => (
+            <div key={c.id} style={{ display: "flex", gap: 10 }}>
+              <div style={{ width: 34, height: 34, borderRadius: "50%", background: c.user.includes("🥷") ? "#1E3A5F" : T.primary, display: "flex", alignItems: "center", justifyContent: "center", color: "#fff", fontWeight: 800, fontSize: c.user.includes("🥷") ? 16 : 12, flexShrink: 0 }}>{c.avatar}</div>
+              <div style={{ flex: 1 }}>
+                <div style={{ background: "#F7F8FA", borderRadius: "0 14px 14px 14px", padding: "10px 14px" }}>
+                  <p style={{ fontWeight: 700, fontSize: 13, color: T.primary, marginBottom: 3 }}>{c.user}</p>
+                  <p style={{ fontSize: 14, color: "#1A1A2E", lineHeight: 1.4 }}>{c.text}</p>
+                </div>
+                <p style={{ fontSize: 11, color: "#aaa", marginTop: 4, marginLeft: 4 }}>{c.time}</p>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {/* Input */}
+        <div style={{ padding: "10px 14px 24px", borderTop: "1px solid #E5E7EB", display: "flex", gap: 10, alignItems: "center", background: "#fff" }}>
+          <div style={{ width: 34, height: 34, borderRadius: "50%", background: T.primary, display: "flex", alignItems: "center", justifyContent: "center", color: "#fff", fontWeight: 800, fontSize: 13, flexShrink: 0 }}>M</div>
+          <input
+            value={text}
+            onChange={e => setText(e.target.value)}
+            onKeyDown={e => e.key === "Enter" && send()}
+            placeholder="Add a comment..."
+            style={{ flex: 1, padding: "10px 14px", borderRadius: 22, border: "1.5px solid #E5E7EB", fontSize: 14, outline: "none", background: "#F7F8FA" }}
+          />
+          <button onClick={send} style={{ width: 38, height: 38, borderRadius: "50%", border: "none", background: text.trim() ? T.primary : "#E5E7EB", color: "#fff", fontSize: 16, cursor: "pointer", transition: "background 0.15s" }}>➤</button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ── SOCIAL SCREEN ─────────────────────────────────────────────────────────────
+function SocialScreen({ setSubScreen, storyReplies, setStoryReplies }) {
+  const T = useTheme();
+  const [showCreate, setShowCreate]   = useState(false);
+  const [anon, setAnon]               = useState(false);
+  const [posts, setPosts]             = useState(INIT_POSTS);
+  const [activeStoryIdx, setActiveStoryIdx] = useState(null);
+  const [stories, setStories]         = useState(STORIES);
+  const [commentPost, setCommentPost] = useState(null);
+
+  const toggleReaction = (postId, emoji) => {
+    setPosts(ps => ps.map(p => {
+      if (p.id !== postId) return p;
+      const current = p.reactions[emoji] || 0;
+      const myReactions = p.myReactions || {};
+      const already = myReactions[emoji];
+      return {
+        ...p,
+        reactions: { ...p.reactions, [emoji]: already ? current - 1 : current + 1 },
+        myReactions: { ...myReactions, [emoji]: !already },
+      };
+    }));
+  };
+
+  const addComment = (postId, text) => {
+    setPosts(ps => ps.map(p => {
+      if (p.id !== postId) return p;
+      return {
+        ...p,
+        comments: [...p.comments, { id: Date.now(), user: "Mido", avatar: "M", text, time: "now" }],
+      };
+    }));
+  };
+
+  const handleStoryReply = (username, text) => {
+    setStoryReplies(prev => ({
+      ...prev,
+      [username]: [...(prev[username] || []), { from: "me", text: `👁 Story reply: ${text}`, time: "now" }],
+    }));
+  };
+
+  const openStory = (idx) => {
+    setStories(s => s.map((st, i) => i === idx ? { ...st, seen: true } : st));
+    setActiveStoryIdx(idx);
+  };
+
+  if (showCreate) return (
+    <div style={{ flex: 1, display: "flex", flexDirection: "column", background: T.bg }}>
+      <TopBar title="New post" onBack={() => setShowCreate(false)} right={
+        <button onClick={() => setShowCreate(false)} style={{ background: T.accent, border: "none", borderRadius: 20, padding: "6px 14px", color: "#fff", fontWeight: 800, fontSize: 13, cursor: "pointer" }}>Post</button>
+      } />
+      <div style={{ padding: "20px", display: "flex", flexDirection: "column", gap: 16 }}>
+        <div style={{ background: "#fff", borderRadius: 14, padding: "14px 16px", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+          <div>
+            <p style={{ fontWeight: 800, fontSize: 15, color: "#1A1A2E" }}>Post anonymously 🥷</p>
+            <p style={{ fontSize: 12, color: "#6B7280" }}>Your identity stays hidden</p>
+          </div>
+          <div onClick={() => setAnon(a => !a)} style={{ width: 48, height: 28, borderRadius: 14, background: anon ? T.primary : "#E5E7EB", position: "relative", cursor: "pointer", transition: "background 0.2s" }}>
+            <div style={{ position: "absolute", top: 3, left: anon ? 22 : 3, width: 22, height: 22, borderRadius: "50%", background: "#fff", transition: "left 0.2s" }} />
+          </div>
+        </div>
+        <div style={{ background: "#fff", borderRadius: 14, padding: "14px", display: "flex", alignItems: "center", gap: 12 }}>
+          <div style={{ width: 40, height: 40, borderRadius: "50%", background: anon ? T.navy : T.primary, display: "flex", alignItems: "center", justifyContent: "center", fontSize: anon ? 18 : 14, color: "#fff", fontWeight: 800 }}>{anon ? "🥷" : "M"}</div>
+          <p style={{ fontWeight: 700, color: "#1A1A2E" }}>{anon ? "Anonymous 🥷" : "Mido"}</p>
+        </div>
+        <div style={{ background: T.primary + "14", border: `2px dashed ${T.primary}`, borderRadius: 14, height: 140, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 32, cursor: "pointer" }}>📷</div>
+        <textarea placeholder="What's on your mind?" style={{ ...iStyle, height: 100, resize: "none" }} />
+      </div>
+    </div>
+  );
+
+  return (
+    <div style={{ flex: 1, display: "flex", flexDirection: "column", background: T.bg }}>
+      {/* Story viewer overlay */}
+      {activeStoryIdx !== null && (
+        <StoryViewer
+          story={stories[activeStoryIdx]}
+          allStories={stories}
+          setStoryIdx={(i) => { setStories(s => s.map((st, idx) => idx === i ? { ...st, seen: true } : st)); setActiveStoryIdx(i); }}
+          onClose={() => setActiveStoryIdx(null)}
+          onReply={handleStoryReply}
+        />
+      )}
+
+      {/* Comments sheet */}
+      {commentPost && (
+        <CommentsSheet
+          post={commentPost}
+          onClose={() => setCommentPost(null)}
+          onAddComment={(id, text) => { addComment(id, text); setCommentPost(p => ({ ...p, comments: [...p.comments, { id: Date.now(), user: "Mido", avatar: "M", text, time: "now" }] })); }}
+        />
+      )}
+
+      {/* Top bar */}
+      <div style={{ padding: "16px 20px 12px", background: "#fff", borderBottom: "1px solid #E5E7EB", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+        <span style={{ fontWeight: 800, fontSize: 18, color: "#1A1A2E" }}>Feed</span>
+        <button onClick={() => setSubScreen("dms")} style={{ background: "none", border: "1.5px solid #E5E7EB", borderRadius: 10, padding: "6px 12px", cursor: "pointer", fontSize: 18 }}>💬</button>
+      </div>
+
+      {/* Stories bar */}
+      <div style={{ padding: "12px 16px", display: "flex", gap: 14, overflowX: "auto", background: "#fff", borderBottom: "1px solid #E5E7EB" }}>
+        {stories.map((s, i) => (
+          <div key={s.id} onClick={() => openStory(i)} style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 4, flexShrink: 0, cursor: "pointer" }}>
+            <div style={{ width: 56, height: 56, borderRadius: "50%", border: `3px solid ${s.seen ? "#E5E7EB" : T.accent}`, background: T.primary, display: "flex", alignItems: "center", justifyContent: "center", color: "#fff", fontWeight: 800, fontSize: 15, padding: 2 }}>
+              <div style={{ width: "100%", height: "100%", borderRadius: "50%", background: s.seen ? "#ccc" : T.primary, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 14, fontWeight: 800, color: "#fff" }}>{s.avatar}</div>
+            </div>
+            <span style={{ fontSize: 11, color: s.seen ? "#aaa" : "#1A1A2E", fontWeight: s.seen ? 400 : 600, maxWidth: 54, textAlign: "center", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{s.user}</span>
+          </div>
+        ))}
+      </div>
+
+      {/* Posts feed */}
+      <div style={{ flex: 1, overflowY: "auto", display: "flex", flexDirection: "column", gap: 8, padding: "8px 0" }}>
+        {posts.map(p => {
+          const totalReactions = Object.values(p.reactions).reduce((a, b) => a + b, 0);
+          const topReactions = Object.entries(p.reactions).sort((a, b) => b[1] - a[1]).slice(0, 3);
+          return (
+            <div key={p.id} style={{ background: "#fff", paddingBottom: 4 }}>
+              {/* Post header */}
+              <div style={{ display: "flex", alignItems: "center", gap: 10, padding: "14px 16px 10px" }}>
+                <div style={{ width: 40, height: 40, borderRadius: "50%", background: p.anon ? T.navy : T.primary, display: "flex", alignItems: "center", justifyContent: "center", color: "#fff", fontWeight: 800, fontSize: p.anon ? 18 : 13 }}>{p.anon ? "🥷" : p.avatar}</div>
+                <div style={{ flex: 1 }}>
+                  <p style={{ fontWeight: 700, fontSize: 14, color: "#1A1A2E" }}>{p.user}</p>
+                  <p style={{ fontSize: 11, color: "#6B7280" }}>{p.time}</p>
+                </div>
+                <span style={{ color: "#6B7280", fontSize: 18, cursor: "pointer" }}>•••</span>
+              </div>
+
+              {/* Post text */}
+              <p style={{ fontSize: 15, color: "#1A1A2E", lineHeight: 1.5, padding: "0 16px 12px" }}>{p.text}</p>
+
+              {/* Reaction summary */}
+              {totalReactions > 0 && (
+                <div style={{ padding: "0 16px 8px", display: "flex", alignItems: "center", gap: 6 }}>
+                  <div style={{ display: "flex" }}>
+                    {topReactions.map(([emoji]) => (
+                      <span key={emoji} style={{ fontSize: 14, marginRight: -4 }}>{emoji}</span>
+                    ))}
+                  </div>
+                  <span style={{ fontSize: 12, color: "#6B7280", marginLeft: 8 }}>{totalReactions} reactions</span>
+                  <span style={{ marginLeft: "auto", fontSize: 12, color: "#6B7280", cursor: "pointer" }} onClick={() => setCommentPost(p)}>{p.comments.length} comments</span>
+                </div>
+              )}
+
+              <div style={{ height: 1, background: "#F0F0F0", margin: "0 16px" }} />
+
+              {/* Action buttons */}
+              <div style={{ display: "flex", padding: "4px 8px" }}>
+                {["💪", "🔥", "❤️", "😂"].map(emoji => {
+                  const count = p.reactions[emoji] || 0;
+                  const active = p.myReactions?.[emoji];
+                  return (
+                    <button key={emoji} onClick={() => toggleReaction(p.id, emoji)} style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", gap: 2, background: "none", border: "none", padding: "8px 4px", cursor: "pointer", borderRadius: 8, transition: "background 0.1s" }}>
+                      <span style={{ fontSize: 20, transform: active ? "scale(1.2)" : "scale(1)", transition: "transform 0.15s", filter: active ? "none" : "grayscale(30%)" }}>{emoji}</span>
+                      <span style={{ fontSize: 11, fontWeight: active ? 800 : 500, color: active ? T.primary : "#6B7280" }}>{count}</span>
+                    </button>
+                  );
+                })}
+                <button onClick={() => setCommentPost(p)} style={{ flex: 1.5, display: "flex", alignItems: "center", justifyContent: "center", gap: 5, background: "none", border: "none", padding: "8px 4px", cursor: "pointer", borderRadius: 8 }}>
+                  <span style={{ fontSize: 18 }}>💬</span>
+                  <span style={{ fontSize: 12, color: "#6B7280", fontWeight: 600 }}>{p.comments.length}</span>
+                </button>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+
+      {/* New post button */}
+      <button onClick={() => setShowCreate(true)} style={{ position: "sticky", bottom: 16, alignSelf: "flex-end", marginRight: 20, width: 52, height: 52, borderRadius: "50%", border: "none", background: T.accent, color: "#fff", fontSize: 24, fontWeight: 800, cursor: "pointer", boxShadow: "0 4px 12px rgba(0,0,0,0.2)" }}>+</button>
+    </div>
+  );
+}
+
+const CONVO_HISTORY = {
+  "Kieron D.": [
+    { from: "them", text: "Yo bro you hitting the gym today?", time: "Mon 10:02" },
+    { from: "me",   text: "Yeah for sure, leg day 🦵",         time: "Mon 10:04" },
+    { from: "them", text: "Sick! What time you going?",         time: "Mon 10:05" },
+    { from: "me",   text: "Around 6pm after class",             time: "Mon 10:06" },
+    { from: "them", text: "Let's go together then",             time: "Mon 10:07" },
+    { from: "me",   text: "Say less, meet at the entrance",     time: "Mon 10:08" },
+    { from: "them", text: "Bet 💪",                             time: "Mon 10:09" },
+    { from: "me",   text: "Did you finish your protein shake?", time: "Mon 17:30" },
+    { from: "them", text: "Lol yeah just had it",               time: "Mon 17:32" },
+    { from: "me",   text: "Good, don't skip pre-workout fuel",  time: "Mon 17:33" },
+    { from: "them", text: "Yes coach 😂",                       time: "Mon 17:34" },
+    { from: "me",   text: "Haha ok heading out now",            time: "Mon 17:55" },
+    { from: "them", text: "Same, 5 mins away",                  time: "Mon 17:57" },
+    { from: "me",   text: "Session was FIRE today bro 🔥",      time: "Mon 20:15" },
+    { from: "them", text: "Deadlifts nearly killed me 💀",       time: "Mon 20:16" },
+    { from: "me",   text: "Same lmao but we showed up",         time: "Mon 20:17" },
+    { from: "them", text: "That's what matters! Same time Thursday?", time: "Mon 20:18" },
+    { from: "me",   text: "Thursday works 👊",                  time: "Mon 20:19" },
+    { from: "them", text: "Ok, have a good trip!",              time: "2m ago"   },
+  ],
+  "Hannah H.": [
+    { from: "them", text: "Hey! Your post about the salmon recipe 😍", time: "Sun 09:10" },
+    { from: "me",   text: "Haha glad you liked it!",                   time: "Sun 09:12" },
+    { from: "them", text: "What's your macros split?",                  time: "Sun 09:13" },
+    { from: "me",   text: "I do 40P / 35C / 25F roughly",              time: "Sun 09:15" },
+    { from: "them", text: "That's clean, I'm trying to lean out",       time: "Sun 09:16" },
+    { from: "me",   text: "Cut the refined carbs first, trust",         time: "Sun 09:18" },
+    { from: "them", text: "Good tip! Are you doing cardio too?",        time: "Sun 09:20" },
+    { from: "me",   text: "Yeah 20 min LISS after every session",       time: "Sun 09:21" },
+    { from: "them", text: "LISS over HIIT?",                            time: "Sun 09:22" },
+    { from: "me",   text: "For fat loss while keeping muscle yeah",     time: "Sun 09:24" },
+    { from: "them", text: "Makes sense! Thanks so much 🙏",             time: "Sun 09:25" },
+    { from: "me",   text: "Anytime! You got this 💪",                   time: "Sun 09:26" },
+    { from: "them", text: "One more thing — do you track calories?",    time: "Sun 11:00" },
+    { from: "me",   text: "Yeah I use GymMice haha",                    time: "Sun 11:02" },
+    { from: "them", text: "Lol obviously 😂 ok I'll track properly",    time: "Sun 11:03" },
+    { from: "me",   text: "Consistency is key, you'll see results 🔥",  time: "Sun 11:05" },
+    { from: "them", text: "Thanks for the tip!",                        time: "15m ago"  },
+  ],
+  "Youssef B.": [
+    { from: "them", text: "Bro I finally hit 100kg bench 😭🔥",          time: "Tue 19:00" },
+    { from: "me",   text: "NO WAY that's insane 🎉",                     time: "Tue 19:01" },
+    { from: "them", text: "Bro I've been working on this for 4 months",  time: "Tue 19:02" },
+    { from: "me",   text: "The grind paid off fr, I'm proud of you",     time: "Tue 19:03" },
+    { from: "them", text: "Couldn't have done it without the program",   time: "Tue 19:04" },
+    { from: "me",   text: "How did the form feel? Any back rounding?",   time: "Tue 19:05" },
+    { from: "them", text: "Nah it was clean, spotter confirmed",          time: "Tue 19:06" },
+    { from: "me",   text: "That's what I like to hear 💯",               time: "Tue 19:07" },
+    { from: "them", text: "Next goal is 120kg before the summer",        time: "Tue 19:08" },
+    { from: "me",   text: "Realistic, let's map out the progression",    time: "Tue 19:10" },
+    { from: "them", text: "Yes please! Maybe deload next week first?",   time: "Tue 19:11" },
+    { from: "me",   text: "Exactly, your body needs the recovery",       time: "Tue 19:12" },
+    { from: "them", text: "Smart. Ok deload week then back to it",       time: "Tue 19:13" },
+    { from: "me",   text: "That's the move. Document the journey too",   time: "Tue 19:14" },
+    { from: "them", text: "I posted it on the feed already lol",         time: "Tue 19:15" },
+    { from: "me",   text: "Saw it! 42 likes already, you're famous 😂",  time: "Tue 19:16" },
+    { from: "them", text: "Lmaoo stop it 😂",                            time: "Tue 19:17" },
+    { from: "them", text: "New PR! 💪",                                  time: "1h ago"   },
+  ],
+  "Paulo": [
+    { from: "them", text: "Hey! I matched with you on Pump Match",       time: "Wed 14:00" },
+    { from: "me",   text: "Oh hey! Yeah I saw, you train at California Gym?", time: "Wed 14:02" },
+    { from: "them", text: "Yeah exactly, 3 years now",                   time: "Wed 14:03" },
+    { from: "me",   text: "Nice! I go there too, what days?",            time: "Wed 14:04" },
+    { from: "them", text: "Monday Wednesday Friday usually",             time: "Wed 14:05" },
+    { from: "me",   text: "Same schedule actually lol",                  time: "Wed 14:06" },
+    { from: "them", text: "That's perfect, we should train together",    time: "Wed 14:07" },
+    { from: "me",   text: "100% I'm doing push/pull/legs split",         time: "Wed 14:08" },
+    { from: "them", text: "Same! Push day tomorrow?",                    time: "Wed 14:09" },
+    { from: "me",   text: "Let's do it, 6pm work for you?",              time: "Wed 14:10" },
+    { from: "them", text: "Perfect, see you at the entrance",            time: "Wed 14:11" },
+    { from: "me",   text: "Bet 🤝",                                      time: "Wed 14:12" },
+    { from: "them", text: "What's your best lift btw?",                  time: "Wed 14:30" },
+    { from: "me",   text: "Bench around 90kg, working on deadlift",      time: "Wed 14:32" },
+    { from: "them", text: "Solid! I'm at 110kg bench",                   time: "Wed 14:33" },
+    { from: "me",   text: "Damn ok you're gonna push me 😅",             time: "Wed 14:34" },
+    { from: "them", text: "That's the whole point 💪 haha",              time: "Wed 14:35" },
+    { from: "them", text: "Wanna be gym buddies?",                       time: "3h ago"   },
+  ],
+  "Anonymous 🥷": [
+    { from: "them", text: "Hey, I saw your comment on my post",          time: "Thu 20:00" },
+    { from: "me",   text: "Oh yeah! Your story really resonated",        time: "Thu 20:02" },
+    { from: "them", text: "I was nervous to post it honestly",           time: "Thu 20:03" },
+    { from: "me",   text: "That took courage, seriously",                time: "Thu 20:04" },
+    { from: "them", text: "The anonymous option made it possible",       time: "Thu 20:05" },
+    { from: "me",   text: "That's exactly why it exists 🙏",             time: "Thu 20:06" },
+    { from: "them", text: "I feel less alone knowing others feel the same", time: "Thu 20:08" },
+    { from: "me",   text: "You're definitely not alone, trust me",       time: "Thu 20:09" },
+    { from: "them", text: "Do you ever feel intimidated at the gym?",    time: "Thu 20:10" },
+    { from: "me",   text: "All the time at the beginning ngl",           time: "Thu 20:12" },
+    { from: "them", text: "How did you get over it?",                    time: "Thu 20:13" },
+    { from: "me",   text: "Just kept showing up. It fades I promise",    time: "Thu 20:14" },
+    { from: "them", text: "I'll try to remember that",                   time: "Thu 20:15" },
+    { from: "me",   text: "You got this. One session at a time 💪",      time: "Thu 20:16" },
+    { from: "them", text: "Thanks so much, this means a lot",            time: "Thu 20:17" },
+    { from: "me",   text: "Anytime, DM me whenever 🤝",                  time: "Thu 20:18" },
+    { from: "them", text: "Thanks for the support",                      time: "5h ago"   },
+  ],
+};
+
+function ChatScreen({ convo, onBack, storyReplies = {} }) {
+  const T = useTheme();
+  const baseHistory = CONVO_HISTORY[convo.name] || [];
+  const extraReplies = storyReplies[convo.user] || storyReplies[convo.name] || [];
+  const [messages, setMessages] = useState([...baseHistory, ...extraReplies]);
+  const [input, setInput] = useState("");
+  const bottomRef = { current: null };
+
+  const send = () => {
+    const text = input.trim();
+    if (!text) return;
+    setMessages(m => [...m, { from: "me", text, time: "now" }]);
+    setInput("");
+    // Auto-reply after 1s
+    setTimeout(() => {
+      const replies = ["😂 haha", "That's fire 🔥", "Bet 💪", "Say less", "Facts bro", "Lmaooo", "Let's gooo 🎉", "100%", "Ok ok I see you 👀", "Respect 🤝"];
+      setMessages(m => [...m, { from: "them", text: replies[Math.floor(Math.random() * replies.length)], time: "now" }]);
+    }, 1000);
+  };
+
+  return (
+    <div style={{ position: "absolute", inset: 0, display: "flex", flexDirection: "column", background: T.bg }}>
+      {/* Header */}
+      <div style={{ flexShrink: 0, display: "flex", alignItems: "center", gap: 12, padding: "14px 16px", background: "#fff", borderBottom: "1px solid #E5E7EB", zIndex: 10 }}>
+        <button onClick={onBack} style={{ background: "none", border: "1.5px solid #E5E7EB", borderRadius: 10, padding: "5px 10px", cursor: "pointer", fontSize: 16 }}>←</button>
+        <div style={{ width: 40, height: 40, borderRadius: "50%", background: T.primary, display: "flex", alignItems: "center", justifyContent: "center", color: "#fff", fontWeight: 800, fontSize: 15 }}>{convo.name[0]}</div>
+        <div>
+          <p style={{ fontWeight: 800, fontSize: 15, color: "#1A1A2E" }}>{convo.name}</p>
+          <p style={{ fontSize: 11, color: T.primary, fontWeight: 600 }}>● Online</p>
+        </div>
+        <div style={{ marginLeft: "auto", display: "flex", gap: 12 }}>
+          <span style={{ fontSize: 20, cursor: "pointer" }}>📞</span>
+          <span style={{ fontSize: 20, cursor: "pointer" }}>📹</span>
+        </div>
+      </div>
+
+      {/* Messages */}
+      <div style={{ flex: 1, overflowY: "auto", minHeight: 0, padding: "16px", display: "flex", flexDirection: "column", gap: 8 }}>
+        {messages.map((msg, i) => {
+          const isMe = msg.from === "me";
+          const showTime = i === 0 || messages[i - 1].time !== msg.time;
+          return (
+            <div key={i}>
+              {showTime && i % 5 === 0 && (
+                <p style={{ textAlign: "center", fontSize: 11, color: "#aaa", margin: "8px 0", fontWeight: 500 }}>{msg.time}</p>
+              )}
+              <div style={{ display: "flex", justifyContent: isMe ? "flex-end" : "flex-start" }}>
+                {!isMe && (
+                  <div style={{ width: 28, height: 28, borderRadius: "50%", background: T.primary, display: "flex", alignItems: "center", justifyContent: "center", color: "#fff", fontWeight: 800, fontSize: 11, marginRight: 8, flexShrink: 0, alignSelf: "flex-end" }}>{convo.name[0]}</div>
+                )}
+                <div style={{
+                  maxWidth: "72%",
+                  padding: "10px 14px",
+                  borderRadius: isMe ? "18px 18px 4px 18px" : "18px 18px 18px 4px",
+                  background: isMe ? T.primary : "#fff",
+                  color: isMe ? "#fff" : "#1A1A2E",
+                  fontSize: 14,
+                  lineHeight: 1.45,
+                  fontWeight: 500,
+                  boxShadow: isMe ? "none" : "0 1px 4px rgba(0,0,0,0.06)",
+                  border: isMe ? "none" : "1px solid #E5E7EB",
+                }}>
+                  {msg.text}
+                </div>
+              </div>
+            </div>
+          );
+        })}
+        <div ref={el => { bottomRef.current = el; }} />
+      </div>
+
+      {/* Input bar */}
+      <div style={{ flexShrink: 0, padding: "10px 14px 20px", background: "#fff", borderTop: "1px solid #E5E7EB", display: "flex", gap: 10, alignItems: "center", zIndex: 10 }}>
+        <button style={{ fontSize: 22, background: "none", border: "none", cursor: "pointer", flexShrink: 0 }}>📎</button>
+        <input
+          value={input}
+          onChange={e => setInput(e.target.value)}
+          onKeyDown={e => e.key === "Enter" && send()}
+          placeholder="Message..."
+          style={{ flex: 1, padding: "11px 14px", borderRadius: 22, border: "1.5px solid #E5E7EB", fontSize: 14, outline: "none", background: "#F7F8FA" }}
+        />
+        <button
+          onClick={send}
+          style={{ width: 40, height: 40, borderRadius: "50%", border: "none", background: input.trim() ? T.primary : "#E5E7EB", color: "#fff", fontSize: 18, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, transition: "background 0.15s" }}
+        >➤</button>
+      </div>
+    </div>
+  );
+}
+
+function DMsSubScreen({ onBack, storyReplies = {} }) {
+  const T = useTheme();
+  const [openConvo, setOpenConvo] = useState(null);
+
+  // Merge story replies into conversation list
+  const storyReplyUsers = Object.keys(storyReplies);
+  const convos = [
+    { name: "Kieron D.",     last: "Ok, have a good trip!",    time: "2m",  unread: true  },
+    { name: "Hannah H.",     last: "Thanks for the tip!",       time: "15m", unread: false },
+    { name: "Youssef B.",    last: "New PR! 💪",                time: "1h",  unread: true  },
+    { name: "Paulo",         last: "Wanna be gym buddies?",     time: "3h",  unread: false },
+    { name: "Anonymous 🥷",  last: "Thanks for the support",    time: "5h",  unread: false },
+    // Dynamically add convos from story replies that aren't already listed
+    ...storyReplyUsers
+      .filter(u => !["Kieron D.","Hannah H.","Youssef B.","Paulo","Anonymous 🥷"].includes(u))
+      .map(u => ({ name: u, last: "You replied to their story", time: "now", unread: false })),
+  ];
+
+  if (openConvo) return <ChatScreen convo={openConvo} onBack={() => setOpenConvo(null)} storyReplies={storyReplies} />;
+
+  return (
+    <div style={{ flex: 1, display: "flex", flexDirection: "column", background: T.bg }}>
+      <TopBar title="Chats" onBack={onBack} right={<span style={{ fontSize: 20, cursor: "pointer", color: T.accent }}>✏️</span>} />
+      <div style={{ padding: "12px 16px" }}><input placeholder="Search conversations..." style={iStyle} /></div>
+      <div style={{ flex: 1, overflowY: "auto" }}>
+        {convos.map(c => (
+          <div key={c.name} onClick={() => setOpenConvo(c)} style={{ display: "flex", alignItems: "center", gap: 14, padding: "14px 20px", borderBottom: "1px solid #E5E7EB", background: "#fff", cursor: "pointer" }}>
+            <div style={{ width: 46, height: 46, borderRadius: "50%", background: T.primary, display: "flex", alignItems: "center", justifyContent: "center", color: "#fff", fontWeight: 800, fontSize: c.name.includes("🥷") ? 20 : 15, flexShrink: 0 }}>{c.name[0]}</div>
+            <div style={{ flex: 1, minWidth: 0 }}>
+              <p style={{ fontWeight: c.unread ? 800 : 600, fontSize: 15, color: "#1A1A2E" }}>{c.name}</p>
+              <p style={{ fontSize: 13, color: "#6B7280", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{c.last}</p>
+            </div>
+            <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: 6 }}>
+              <span style={{ fontSize: 11, color: "#6B7280" }}>{c.time}</span>
+              {c.unread && <div style={{ width: 10, height: 10, borderRadius: "50%", background: T.accent }} />}
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function PumpMatchScreen({ onBack }) {
+  const T = useTheme();
+  const [idx, setIdx] = useState(0);
+  const [matched, setMatched] = useState(false);
+  const cards = [
+    { name: "Paulo", age: 29, location: "Tunis",  goals: ["Muscle gain", "Cardio"], emoji: "🏋️" },
+    { name: "Ana",   age: 24, location: "Ariana", goals: ["Toned", "HIIT"],         emoji: "⚡"  },
+    { name: "Sami",  age: 22, location: "Sousse", goals: ["Lean", "Cardio"],        emoji: "🏃"  },
+  ];
+  const card = cards[idx % cards.length];
+
+  if (matched) return (
+    <div style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", background: T.navy, gap: 24, padding: 32 }}>
+      <span style={{ fontSize: 64 }}>💪🔥</span>
+      <h2 style={{ color: "#fff", fontSize: 28, fontWeight: 900, textAlign: "center" }}>It's a Pump Match!</h2>
+      <p style={{ color: "rgba(255,255,255,0.7)", textAlign: "center" }}>You and {card.name} matched. Start training together!</p>
+      <div style={{ display: "flex", gap: 16, marginTop: 8, width: "100%" }}>
+        <button onClick={() => setMatched(false)} style={{ flex: 1, padding: "14px", borderRadius: 12, border: "2px solid rgba(255,255,255,0.3)", background: "transparent", color: "#fff", fontWeight: 700, fontSize: 15, cursor: "pointer" }}>Keep matching</button>
+        <button style={{ flex: 1, padding: "14px", borderRadius: 12, border: "none", background: T.accent, color: "#fff", fontWeight: 800, fontSize: 15, cursor: "pointer" }}>Send message</button>
+      </div>
+    </div>
+  );
+
+  return (
+    <div style={{ flex: 1, display: "flex", flexDirection: "column", background: T.bg }}>
+      <TopBar title="Pump Match 💪" onBack={onBack} />
+      <div style={{ flex: 1, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: "20px", gap: 20 }}>
+        <div style={{ width: "100%", maxWidth: 340, background: T.navy, borderRadius: 24, overflow: "hidden" }}>
+          <div style={{ height: 300, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 96, background: T.navyLight || T.navy + "cc" }}>{card.emoji}</div>
+          <div style={{ padding: "20px" }}>
+            <div style={{ display: "flex", alignItems: "baseline", gap: 10 }}>
+              <h2 style={{ color: "#fff", fontSize: 26, fontWeight: 900 }}>{card.name}</h2>
+              <span style={{ color: "rgba(255,255,255,0.7)", fontSize: 20 }}>{card.age}</span>
+            </div>
+            <p style={{ color: "rgba(255,255,255,0.6)", fontSize: 14, marginBottom: 12 }}>📍 {card.location}</p>
+            <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+              {card.goals.map(g => <span key={g} style={{ padding: "6px 12px", borderRadius: 20, background: "rgba(255,255,255,0.15)", color: "#fff", fontSize: 13, fontWeight: 600 }}>{g}</span>)}
+            </div>
+          </div>
+        </div>
+        <div style={{ display: "flex", gap: 24, alignItems: "center" }}>
+          <button onClick={() => setIdx(i => i + 1)} style={{ width: 56, height: 56, borderRadius: "50%", border: "2px solid #E5E7EB", background: "#fff", fontSize: 22, cursor: "pointer" }}>❌</button>
+          <button onClick={() => setMatched(true)} style={{ width: 72, height: 72, borderRadius: "50%", border: "none", background: T.accent, fontSize: 28, cursor: "pointer" }}>💪</button>
+          <button onClick={() => setIdx(i => i + 1)} style={{ width: 56, height: 56, borderRadius: "50%", border: "2px solid #3B8BD4", background: "#EBF4FF", fontSize: 22, cursor: "pointer" }}>⭐</button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function ScheduleScreen({ onBack }) {
+  const T = useTheme();
+  const [tab, setTab] = useState("today");
+  const events = [
+    { time: "09:00 – 17:00", name: "Study",         loc: "ISSBAT",         color: "#3B8BD4" },
+    { time: "17:00 – 18:00", name: "Get ready",      loc: "Home",           color: T.primary },
+    { time: "18:00 – 20:00", name: "Gym (Push Day)", loc: "California Gym", color: T.accent  },
+    { time: "20:00 – 22:00", name: "Home, dinner",   loc: "Home",           color: "#7C3AED" },
+    { time: "22:00",         name: "Sleep",           loc: "Home",           color: "#6B7280" },
+  ];
+  const days = [["19","Mon"],["20","Tue"],["21","Wed"],["22","Thu"],["23","Fri"]];
+  return (
+    <div style={{ flex: 1, display: "flex", flexDirection: "column", background: T.bg }}>
+      <div style={{ padding: "16px 20px 0", background: "#fff", borderBottom: "1px solid #E5E7EB" }}>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 14 }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+            {onBack && <button onClick={onBack} style={{ background: "none", border: "1.5px solid #E5E7EB", borderRadius: 10, padding: "5px 10px", cursor: "pointer", fontSize: 16 }}>←</button>}
+            <span style={{ fontWeight: 800, fontSize: 18, color: "#1A1A2E" }}>Schedule</span>
+          </div>
+          <button style={{ background: T.accent, border: "none", borderRadius: 20, padding: "6px 14px", color: "#fff", fontWeight: 800, fontSize: 13, cursor: "pointer" }}>+ Add</button>
+        </div>
+        <div style={{ display: "flex" }}>
+          {["today","weekly"].map(t => (
+            <button key={t} onClick={() => setTab(t)} style={{ flex: 1, padding: "10px 0", border: "none", borderBottom: `3px solid ${tab === t ? T.accent : "transparent"}`, background: "transparent", fontWeight: 700, fontSize: 14, color: tab === t ? T.accent : "#6B7280", cursor: "pointer", textTransform: "capitalize" }}>{t}</button>
+          ))}
+        </div>
+      </div>
+      <div style={{ padding: "12px 16px", display: "flex", gap: 8, overflowX: "auto" }}>
+        {days.map(([num, day], i) => (
+          <div key={num} style={{ flexShrink: 0, width: 52, height: 60, borderRadius: 12, background: i === 0 ? T.accent : "#fff", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", border: `1.5px solid ${i === 0 ? T.accent : "#E5E7EB"}`, cursor: "pointer" }}>
+            <span style={{ fontWeight: 900, fontSize: 18, color: i === 0 ? "#fff" : "#1A1A2E" }}>{num}</span>
+            <span style={{ fontSize: 11, color: i === 0 ? "rgba(255,255,255,0.8)" : "#6B7280" }}>{day}</span>
+          </div>
+        ))}
+      </div>
+      {tab === "today" ? (
+        <div style={{ flex: 1, overflowY: "auto", padding: "8px 16px", display: "flex", flexDirection: "column", gap: 10 }}>
+          {events.map(e => (
+            <div key={e.name} style={{ background: "#fff", borderRadius: 14, padding: "14px 16px", borderLeft: `4px solid ${e.color}`, cursor: "pointer" }}>
+              <p style={{ fontWeight: 800, fontSize: 15, color: "#1A1A2E" }}>{e.name}</p>
+              <p style={{ fontSize: 12, color: "#6B7280", marginTop: 2 }}>{e.loc}</p>
+              <p style={{ fontSize: 12, color: e.color, fontWeight: 700, marginTop: 2 }}>{e.time}</p>
+            </div>
+          ))}
+        </div>
+      ) : (
+        <div style={{ flex: 1, padding: "16px", overflowY: "auto" }}>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(5,1fr)", gap: 6 }}>
+            {[["Org Mgt","Financial Mgt","","Org Mgt","Micro"],["Macro","","Macro","","Org Mgt"],["Micro","Org Mgt","Micro","Micro","Macro"],["Financial Mgt","","","",""]].map((row, ri) =>
+              row.map((cell, ci) => (
+                <div key={`${ri}-${ci}`} style={{ height: 60, borderRadius: 8, background: cell ? [T.primary+"22","#3B8BD422",T.accent+"22","#7C3AED22"][ci%4] : "transparent", border: cell ? `1.5px solid ${[T.primary,"#3B8BD4",T.accent,"#7C3AED"][ci%4]}44` : "none", display: "flex", alignItems: "center", justifyContent: "center", padding: 4 }}>
+                  {cell && <span style={{ fontSize: 10, fontWeight: 700, color: [T.primary,"#3B8BD4",T.accent,"#7C3AED"][ci%4], textAlign: "center" }}>{cell}</span>}
+                </div>
+              ))
+            )}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+function NutritionScreen({ setSubScreen, subScreen, onBack }) {
+  const T = useTheme();
+  const [tab, setTab] = useState("menu");
+  const meals = [
+    { name: "Garlic Butter Chicken",    cat: "Lunch",     kcal: 520, p: 45, c: 30, f: 18, emoji: "🍗" },
+    { name: "Grilled Salmon & Quinoa",  cat: "Dinner",    kcal: 740, p: 52, c: 60, f: 24, emoji: "🍣" },
+    { name: "Oatmeal Berry Bowl",       cat: "Breakfast", kcal: 380, p: 12, c: 68, f: 8,  emoji: "🫐" },
+    { name: "Egg Tartines",             cat: "Snack",     kcal: 290, p: 18, c: 24, f: 12, emoji: "🍳" },
+  ];
+  const saved = [
+    { name: "Chicken & Veggies",    emoji: "🥦" }, { name: "Spicy Sweet Potato", emoji: "🍠" },
+    { name: "Za'atar Tosties",      emoji: "🥙" }, { name: "Zucchini Pasta",     emoji: "🍝" },
+    { name: "Quinoa Oatmeal",       emoji: "🫙" }, { name: "Avocado Toast",      emoji: "🥑" },
+  ];
+
+  if (subScreen === "recipe") return (
+    <div style={{ flex: 1, display: "flex", flexDirection: "column", background: T.bg }}>
+      <TopBar title="Recipe" onBack={() => setSubScreen(null)} right={<span style={{ fontSize: 20, cursor: "pointer" }}>❤️</span>} />
+      <div style={{ flex: 1, overflowY: "auto" }}>
+        <div style={{ height: 200, background: T.primary, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 80 }}>🍣</div>
+        <div style={{ padding: "20px" }}>
+          <h2 style={{ fontSize: 22, fontWeight: 900, color: T.accent, marginBottom: 4 }}>Grilled Salmon with Quinoa & Veggies</h2>
+          <div style={{ display: "flex", gap: 12, marginBottom: 20 }}>
+            {[["Protein","52g",T.primary],["Carbs","60g",T.accent],["Fat","24g","#7C3AED"]].map(([l,v,col]) => (
+              <div key={l} style={{ flex: 1, background: "#fff", borderRadius: 10, padding: "10px", textAlign: "center" }}>
+                <p style={{ fontSize: 11, color: "#6B7280" }}>{l}</p>
+                <p style={{ fontSize: 16, fontWeight: 900, color: col }}>{v}</p>
+              </div>
+            ))}
+          </div>
+          <h3 style={{ fontWeight: 800, fontSize: 16, color: T.primary, marginBottom: 10 }}>Ingredients</h3>
+          {["2 salmon fillets","1 cup quinoa","1 zucchini (sliced)","1 red bell pepper","1 cup broccoli florets","1 tbsp olive oil","Salt, pepper, lemon"].map(i => (
+            <p key={i} style={{ fontSize: 14, color: "#1A1A2E", padding: "4px 0", borderBottom: "1px solid #E5E7EB" }}>• {i}</p>
+          ))}
+          <h3 style={{ fontWeight: 800, fontSize: 16, color: T.primary, margin: "16px 0 10px" }}>Steps</h3>
+          {["Cook quinoa in broth for 15 min.","Toss vegetables in olive oil, roast at 200°C for 20 min.","Season salmon and grill 4–5 min each side.","Assemble: quinoa base, vegetables, salmon on top."].map((s,i) => (
+            <p key={i} style={{ fontSize: 14, color: "#1A1A2E", padding: "8px 0", borderBottom: "1px solid #E5E7EB" }}><strong style={{ color: T.accent }}>{i+1}.</strong> {s}</p>
+          ))}
+          <button style={{ width: "100%", marginTop: 20, padding: "14px", borderRadius: 12, border: "none", background: T.accent, color: "#fff", fontWeight: 800, fontSize: 15, cursor: "pointer" }}>▶ Watch tutorial on YouTube</button>
+        </div>
+      </div>
+    </div>
+  );
+
+  return (
+    <div style={{ flex: 1, display: "flex", flexDirection: "column", background: T.bg }}>
+      <div style={{ padding: "16px 20px 0", background: "#fff", borderBottom: "1px solid #E5E7EB" }}>
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 2 }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+            <button onClick={onBack} style={{ background: "none", border: "1.5px solid #E5E7EB", borderRadius: 10, padding: "5px 10px", cursor: "pointer", fontSize: 16 }}>←</button>
+            <span style={{ fontWeight: 800, fontSize: 18, color: "#1A1A2E" }}>Nutrition</span>
+          </div>
+        </div>
+        <div style={{ display: "flex", marginTop: 14 }}>
+          {[["menu","Today's menu"],["list","My list"],["recipes","Recipes"]].map(([id,label]) => (
+            <button key={id} onClick={() => setTab(id)} style={{ flex: 1, padding: "10px 0", border: "none", borderBottom: `3px solid ${tab === id ? T.accent : "transparent"}`, background: "transparent", fontWeight: 700, fontSize: 13, color: tab === id ? T.accent : "#6B7280", cursor: "pointer" }}>{label}</button>
+          ))}
+        </div>
+      </div>
+      <div style={{ flex: 1, overflowY: "auto" }}>
+        {tab === "menu" && (
+          <div style={{ padding: "20px 16px" }}>
+            <div style={{ background: "#fff", borderRadius: 16, padding: "20px", marginBottom: 20, display: "flex", flexDirection: "column", alignItems: "center" }}>
+              <p style={{ fontSize: 13, color: "#6B7280", fontWeight: 600, marginBottom: 8 }}>Calories today</p>
+              <div style={{ position: "relative", width: 120, height: 120 }}>
+                <svg width="120" height="120" viewBox="0 0 120 120">
+                  <circle cx="60" cy="60" r="50" fill="none" stroke="#E5E7EB" strokeWidth="12"/>
+                  <circle cx="60" cy="60" r="50" fill="none" stroke={T.accent} strokeWidth="12" strokeDasharray="188 314" strokeLinecap="round" transform="rotate(-90 60 60)"/>
+                </svg>
+                <div style={{ position: "absolute", inset: 0, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center" }}>
+                  <p style={{ fontSize: 20, fontWeight: 900, color: "#1A1A2E" }}>1,840</p>
+                  <p style={{ fontSize: 11, color: "#6B7280" }}>/ 2,200</p>
+                </div>
+              </div>
+            </div>
+            <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+              {meals.map(m => (
+                <div key={m.name} onClick={() => setSubScreen("recipe")} style={{ background: "#fff", borderRadius: 14, padding: "14px 16px", display: "flex", alignItems: "center", gap: 14, cursor: "pointer" }}>
+                  <span style={{ fontSize: 32 }}>{m.emoji}</span>
+                  <div style={{ flex: 1 }}>
+                    <p style={{ fontSize: 11, color: "#6B7280", fontWeight: 600 }}>{m.cat}</p>
+                    <p style={{ fontWeight: 700, fontSize: 14, color: "#1A1A2E" }}>{m.name}</p>
+                    <div style={{ display: "flex", gap: 8, marginTop: 4 }}>
+                      <span style={{ fontSize: 11, color: T.primary, fontWeight: 700 }}>P {m.p}g</span>
+                      <span style={{ fontSize: 11, color: T.accent, fontWeight: 700 }}>C {m.c}g</span>
+                      <span style={{ fontSize: 11, color: "#7C3AED", fontWeight: 700 }}>F {m.f}g</span>
+                    </div>
+                  </div>
+                  <p style={{ fontWeight: 800, fontSize: 14, color: T.accent }}>{m.kcal}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+        {(tab === "list" || tab === "recipes") && (
+          <div style={{ padding: "16px" }}>
+            <input placeholder={tab === "list" ? "Search saved meals..." : "Search recipes..."} style={iStyle} />
+            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12, marginTop: 16 }}>
+              {saved.map(m => (
+                <div key={m.name} onClick={() => setSubScreen("recipe")} style={{ background: "#fff", borderRadius: 14, overflow: "hidden", cursor: "pointer" }}>
+                  <div style={{ height: 100, background: T.bg, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 48 }}>{m.emoji}</div>
+                  <p style={{ padding: "10px 12px", fontWeight: 700, fontSize: 13, color: "#1A1A2E" }}>{m.name}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+function ShopScreen({ onBack }) {
+  const T = useTheme();
+  const [cart, setCart] = useState({});
+  const [showCart, setShowCart] = useState(false);
+
+  const products = [
+    { id: 1, name: "Squat Belt",        price: 42, emoji: "🏋️" },
+    { id: 2, name: "Lifting Straps",    price: 15, emoji: "🤜" },
+    { id: 3, name: "Dumbbells",         price: 12, emoji: "💪" },
+    { id: 4, name: "Jump Rope",         price: 3,  emoji: "🪢" },
+    { id: 5, name: "Compression Shirt", price: 25, emoji: "👕" },
+    { id: 6, name: "Training Gloves",   price: 15, emoji: "🧤" },
+    { id: 7, name: "Bib Shorts",        price: 23, emoji: "🩳" },
+    { id: 8, name: "Training Shorts",   price: 23, emoji: "🩳" },
+  ];
+
+  const addToCart = (p) => setCart(c => ({ ...c, [p.id]: { ...p, qty: (c[p.id]?.qty || 0) + 1 } }));
+  const removeFromCart = (id) => setCart(c => {
+    const n = { ...c };
+    if (n[id].qty > 1) n[id] = { ...n[id], qty: n[id].qty - 1 };
+    else delete n[id];
+    return n;
+  });
+  const cartItems = Object.values(cart);
+  const cartCount = cartItems.reduce((s, i) => s + i.qty, 0);
+  const cartTotal = cartItems.reduce((s, i) => s + i.price * i.qty, 0);
+
+  if (showCart) return (
+    <div style={{ flex: 1, display: "flex", flexDirection: "column", background: T.bg }}>
+      <TopBar title="My Cart" onBack={() => setShowCart(false)} />
+      <div style={{ flex: 1, overflowY: "auto", padding: "16px" }}>
+        {cartItems.length === 0 ? (
+          <div style={{ textAlign: "center", padding: "60px 0", color: "#6B7280" }}>
+            <p style={{ fontSize: 40, marginBottom: 12 }}>🛒</p>
+            <p style={{ fontWeight: 700, fontSize: 16 }}>Your cart is empty</p>
+          </div>
+        ) : (
+          <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+            {cartItems.map(item => (
+              <div key={item.id} style={{ background: "#fff", borderRadius: 14, padding: "14px 16px", display: "flex", alignItems: "center", gap: 14, border: "1.5px solid #E5E7EB" }}>
+                <span style={{ fontSize: 32 }}>{item.emoji}</span>
+                <div style={{ flex: 1 }}>
+                  <p style={{ fontWeight: 700, fontSize: 14, color: "#1A1A2E" }}>{item.name}</p>
+                  <p style={{ fontSize: 13, color: T.accent, fontWeight: 800 }}>${item.price} each</p>
+                </div>
+                <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                  <button onClick={() => removeFromCart(item.id)} style={{ width: 28, height: 28, borderRadius: "50%", border: "1.5px solid #E5E7EB", background: "#fff", fontWeight: 800, fontSize: 16, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}>−</button>
+                  <span style={{ fontWeight: 800, fontSize: 15, minWidth: 16, textAlign: "center" }}>{item.qty}</span>
+                  <button onClick={() => addToCart(item)} style={{ width: 28, height: 28, borderRadius: "50%", border: "none", background: T.primary, color: "#fff", fontWeight: 800, fontSize: 16, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}>+</button>
+                </div>
+                <p style={{ fontWeight: 900, fontSize: 15, color: "#1A1A2E", minWidth: 44, textAlign: "right" }}>${item.price * item.qty}</p>
+              </div>
+            ))}
+            <div style={{ background: "#fff", borderRadius: 14, padding: "16px", border: "1.5px solid #E5E7EB", marginTop: 8 }}>
+              <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 6 }}>
+                <span style={{ fontSize: 14, color: "#6B7280" }}>Subtotal ({cartCount} items)</span>
+                <span style={{ fontWeight: 700 }}>${cartTotal}</span>
+              </div>
+              <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 6 }}>
+                <span style={{ fontSize: 14, color: "#6B7280" }}>Shipping</span>
+                <span style={{ fontWeight: 700, color: T.primary }}>Free</span>
+              </div>
+              <div style={{ height: 1, background: "#E5E7EB", margin: "10px 0" }} />
+              <div style={{ display: "flex", justifyContent: "space-between" }}>
+                <span style={{ fontWeight: 800, fontSize: 16 }}>Total</span>
+                <span style={{ fontWeight: 900, fontSize: 18, color: T.accent }}>${cartTotal}</span>
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
+      {cartItems.length > 0 && (
+        <div style={{ padding: "16px 20px 24px", background: "#fff", borderTop: "1px solid #E5E7EB" }}>
+          <button style={{ width: "100%", padding: "15px", borderRadius: 14, border: "none", background: T.accent, color: "#fff", fontWeight: 800, fontSize: 17, cursor: "pointer" }}>Buy now — ${cartTotal}</button>
+        </div>
+      )}
+    </div>
+  );
+
+  return (
+    <div style={{ flex: 1, display: "flex", flexDirection: "column", background: T.bg }}>
+      <TopBar title="GymMice Shop" onBack={onBack} right={
+        <button onClick={() => setShowCart(true)} style={{ position: "relative", background: "none", border: "none", cursor: "pointer", fontSize: 22 }}>
+          🛒
+          {cartCount > 0 && (
+            <span style={{ position: "absolute", top: -6, right: -6, background: T.accent, color: "#fff", borderRadius: "50%", width: 18, height: 18, fontSize: 10, fontWeight: 800, display: "flex", alignItems: "center", justifyContent: "center" }}>{cartCount}</span>
+          )}
+        </button>
+      } />
+      <div style={{ padding: "12px 16px" }}><input placeholder="Search store..." style={iStyle} /></div>
+      <div style={{ flex: 1, overflowY: "auto" }}>
+        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12, padding: "0 16px 20px" }}>
+          {products.map(p => {
+            const inCart = cart[p.id]?.qty || 0;
+            return (
+              <div key={p.id} style={{ background: "#fff", borderRadius: 14, overflow: "hidden", border: `1.5px solid ${inCart > 0 ? T.primary : "#E5E7EB"}` }}>
+                <div style={{ height: 110, background: T.bg, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 52, position: "relative" }}>
+                  {p.emoji}
+                  {inCart > 0 && <span style={{ position: "absolute", top: 8, right: 8, background: T.primary, color: "#fff", borderRadius: "50%", width: 20, height: 20, fontSize: 11, fontWeight: 800, display: "flex", alignItems: "center", justifyContent: "center" }}>{inCart}</span>}
+                </div>
+                <div style={{ padding: "10px 12px" }}>
+                  <p style={{ fontWeight: 700, fontSize: 13, color: "#1A1A2E" }}>{p.name}</p>
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginTop: 6 }}>
+                    <p style={{ fontWeight: 900, fontSize: 15, color: T.accent }}>${p.price}</p>
+                    <button onClick={() => addToCart(p)} style={{ padding: "4px 10px", borderRadius: 20, border: "none", background: T.accent, color: "#fff", fontSize: 12, fontWeight: 700, cursor: "pointer" }}>+ Add</button>
+                  </div>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function ProfileScreen({ setScreen, palette, setPalette }) {
+  const T = useTheme();
+  const [sub, setSub] = useState(null);
+  const badges = [
+    { days: 7,   name: "Squeaky Strong",            sub: "Tiny but consistent. You showed up!", color: "#5B9E4A", bg: "#E8F5E2", animal: "🐭", earned: true  },
+    { days: 30,  name: "Certified Good Boi",        sub: "A whole month? You're doing amazing, champ.", color: "#4A90C4", bg: "#E0F0FF", animal: "🐶", earned: true  },
+    { days: 60,  name: "Sloth Level: Legend",       sub: "Consistency, not speed. You get it.",  color: "#9B72CC", bg: "#F0E8FF", animal: "🦥", earned: false },
+    { days: 90,  name: "Trash Panda of Discipline", sub: "Undeniable. Unstoppable. A little chaotic.", color: "#E8A020", bg: "#FFF3DC", animal: "🦝", earned: false },
+    { days: 180, name: "Built Different",           sub: "Half a year of showing up? Absolute unit.", color: "#D94040", bg: "#FFE8E8", animal: "🐔", earned: false },
+    { days: 365, name: "Gym Myth. Legend. Icon.",   sub: "A full year. Unreal. Teach us your ways.", color: "#E8B820", bg: "#FFF8DC", animal: "🦄", earned: false },
+  ];
+  const paletteDefs = [
+    { id: "default",  label: "Default",  a: "#1D9E75", b: "#E8692A" },
+    { id: "pink",     label: "Pink",     a: "#E91E8C", b: "#1A1A1A" },
+    { id: "military", label: "Military", a: "#4A5E3A", b: "#8B8B6B" },
+    { id: "mono",     label: "Mono",     a: "#111111", b: "#555555" },
+    { id: "midnight", label: "Midnight", a: "#4B4BFF", b: "#A78BFA" },
+  ];
+
+  if (sub === "palette") return (
+    <div style={{ flex: 1, display: "flex", flexDirection: "column", background: T.bg }}>
+      <TopBar title="Color palette" onBack={() => setSub(null)} />
+      <div style={{ padding: "20px 16px", display: "flex", flexDirection: "column", gap: 12 }}>
+        <p style={{ fontSize: 14, color: "#6B7280" }}>Changes apply across the whole app instantly.</p>
+        {paletteDefs.map(p => (
+          <button key={p.id} onClick={() => setPalette(p.id)} style={{ display: "flex", alignItems: "center", gap: 14, padding: "16px", borderRadius: 12, border: `2px solid ${palette === p.id ? T.accent : "#E5E7EB"}`, background: palette === p.id ? T.accent + "14" : "#fff", cursor: "pointer" }}>
+            <div style={{ display: "flex", gap: 6 }}>
+              <div style={{ width: 28, height: 28, borderRadius: 8, background: p.a }} />
+              <div style={{ width: 28, height: 28, borderRadius: 8, background: p.b, border: "1px solid #E5E7EB" }} />
+            </div>
+            <span style={{ fontWeight: 700, fontSize: 15, color: palette === p.id ? T.accent : "#1A1A2E" }}>{p.label}</span>
+            {palette === p.id && <span style={{ marginLeft: "auto", color: T.accent, fontWeight: 900 }}>✓</span>}
+          </button>
+        ))}
+      </div>
+    </div>
+  );
+
+  return (
+    <div style={{ flex: 1, display: "flex", flexDirection: "column", background: T.bg }}>
+      <TopBar title="Profile" />
+      <div style={{ overflowY: "auto" }}>
+        <div style={{ background: "#fff", padding: "24px 20px", display: "flex", flexDirection: "column", alignItems: "center", gap: 10, borderBottom: "1px solid #E5E7EB" }}>
+          <div style={{ width: 80, height: 80, borderRadius: "50%", background: T.primary, display: "flex", alignItems: "center", justifyContent: "center", color: "#fff", fontWeight: 900, fontSize: 30 }}>M</div>
+          <p style={{ fontWeight: 900, fontSize: 20, color: "#1A1A2E" }}>Mido</p>
+          <div style={{ display: "flex", gap: 28 }}>
+            {[["124","Followers"],["87","Following"],["32","Posts"]].map(([n,l]) => (
+              <div key={l} style={{ textAlign: "center" }}>
+                <p style={{ fontWeight: 900, fontSize: 18, color: "#1A1A2E" }}>{n}</p>
+                <p style={{ fontSize: 12, color: "#6B7280" }}>{l}</p>
+              </div>
+            ))}
+          </div>
+          <button style={{ width: "100%", maxWidth: 280, padding: "10px", borderRadius: 20, border: `2px solid ${T.accent}`, background: "transparent", color: T.accent, fontWeight: 800, fontSize: 14, cursor: "pointer" }}>Edit profile</button>
+        </div>
+
+        <div style={{ padding: "16px 16px 0" }}>
+          <p style={{ fontWeight: 800, fontSize: 13, color: "#6B7280", textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 12 }}>Streak Badges</p>
+          <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+            {badges.map(b => (
+              <div key={b.days} style={{ background: b.earned ? b.bg : "#F5F5F5", borderRadius: 16, padding: "14px 16px", display: "flex", alignItems: "center", gap: 14, border: `1.5px solid ${b.earned ? b.color + "55" : "#E5E7EB"}`, opacity: b.earned ? 1 : 0.5 }}>
+                <div style={{ width: 56, height: 56, borderRadius: 14, background: b.earned ? b.color + "22" : "#E5E7EB", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 28, border: `2px solid ${b.earned ? b.color : "#ddd"}`, flexShrink: 0 }}>{b.animal}</div>
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 3 }}>
+                    <span style={{ fontWeight: 900, fontSize: 13, color: b.earned ? b.color : "#aaa" }}>{b.days} DAY STREAK</span>
+                    {b.earned && <span style={{ fontSize: 10, background: b.color, color: "#fff", borderRadius: 20, padding: "2px 7px", fontWeight: 800 }}>EARNED</span>}
+                    {!b.earned && <span style={{ fontSize: 10, background: "#ddd", color: "#aaa", borderRadius: 20, padding: "2px 7px", fontWeight: 800 }}>LOCKED</span>}
+                  </div>
+                  <p style={{ fontWeight: 800, fontSize: 14, color: b.earned ? "#1A1A2E" : "#aaa", marginBottom: 2 }}>{b.name}</p>
+                  <p style={{ fontSize: 11, color: b.earned ? "#6B7280" : "#bbb", lineHeight: 1.4 }}>{b.sub}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <div style={{ padding: "16px", display: "flex", flexDirection: "column", gap: 2 }}>
+          {[
+            { icon: "🎨", label: "Color palette",  action: () => setSub("palette") },
+            { icon: "🔔", label: "Notifications",  action: () => {}                },
+            { icon: "🔒", label: "Privacy",        action: () => {}                },
+            { icon: "⚙️", label: "Settings",       action: () => {}                },
+            { icon: "🚪", label: "Log out",        action: () => setScreen("signin"), danger: true },
+          ].map(item => (
+            <button key={item.label} onClick={item.action} style={{ display: "flex", alignItems: "center", gap: 14, padding: "16px", borderRadius: 12, border: "none", background: "#fff", cursor: "pointer", textAlign: "left", color: item.danger ? "#E02020" : "#1A1A2E", fontWeight: 700, fontSize: 15, marginBottom: 2 }}>
+              <span style={{ fontSize: 20 }}>{item.icon}</span>
+              {item.label}
+              <span style={{ marginLeft: "auto", color: "#6B7280" }}>›</span>
+            </button>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+const iStyle = { width: "100%", padding: "13px 14px", borderRadius: 10, border: "1.5px solid #E5E7EB", fontSize: 15, color: "#1A1A2E", background: "#FAFAFA", outline: "none", boxSizing: "border-box" };
+const selStyle = { padding: "13px 10px", borderRadius: 10, border: "1.5px solid #E5E7EB", fontSize: 15, color: "#1A1A2E", background: "#FAFAFA" };
+const Input = ({ placeholder, type = "text" }) => <input type={type} placeholder={placeholder} style={iStyle} />;
+const Btn = ({ label, onClick, color }) => <button onClick={onClick} style={{ width: "100%", padding: "14px", borderRadius: 12, border: "none", background: color, color: "#fff", fontWeight: 800, fontSize: 16, cursor: "pointer" }}>{label}</button>;
+const Divider = () => <div style={{ display: "flex", alignItems: "center", gap: 12 }}><div style={{ flex: 1, height: 1, background: "#E5E7EB" }} /><span style={{ fontSize: 13, color: "#6B7280" }}>Or</span><div style={{ flex: 1, height: 1, background: "#E5E7EB" }} /></div>;
+const SocialBtn = ({ icon, label, onClick }) => <button onClick={onClick} style={{ width: "100%", padding: "13px", borderRadius: 12, border: "1.5px solid #E5E7EB", background: "#fff", display: "flex", alignItems: "center", justifyContent: "center", gap: 10, fontWeight: 600, fontSize: 15, color: "#1A1A2E", cursor: "pointer" }}><span style={{ fontSize: 18 }}>{icon}</span>{label}</button>;
+
+export default function App() {
+  const [screen, setScreen]       = useState("splash");
+  const [subScreen, setSubScreen] = useState(null);
+  const [palette, setPalette]     = useState("default");
+  const [storyReplies, setStoryReplies] = useState({});
+  const T = PALETTES[palette];
+
+  const mainScreens = ["home", "social", "profile", "schedule", "nutrition", "pumpmatch", "shop"];
+  const isMain = mainScreens.includes(screen);
+  const navScreens = ["home", "social", "profile"];
+
+  const renderMain = () => {
+    if (subScreen === "dms") return <DMsSubScreen onBack={() => setSubScreen(null)} storyReplies={storyReplies} />;
+    switch (screen) {
+      case "home":      return <HomeScreen      setScreen={setScreen} />;
+      case "social":    return <SocialScreen    setSubScreen={setSubScreen} storyReplies={storyReplies} setStoryReplies={setStoryReplies} />;
+      case "schedule":  return <ScheduleScreen  onBack={() => setScreen("home")} />;
+      case "nutrition": return <NutritionScreen subScreen={subScreen} setSubScreen={setSubScreen} onBack={() => setScreen("home")} />;
+      case "pumpmatch": return <PumpMatchScreen onBack={() => setScreen("home")} />;
+      case "shop":      return <ShopScreen      onBack={() => setScreen("home")} />;
+      case "profile":   return <ProfileScreen   setScreen={setScreen} palette={palette} setPalette={setPalette} />;
+      default:          return null;
+    }
+  };
+
+  return (
+    <ThemeCtx.Provider value={T}>
+      <div style={{ maxWidth: 430, margin: "0 auto", minHeight: "100vh", display: "flex", flexDirection: "column", fontFamily: "-apple-system, BlinkMacSystemFont, 'Inter', 'Segoe UI', sans-serif", background: T.bg }}>
+        {screen === "splash"     && <SplashScreen next={() => setScreen("signin")} />}
+        {screen === "signin"     && <SignInScreen  setScreen={setScreen} />}
+        {screen === "signup"     && <SignUpScreen  setScreen={setScreen} />}
+        {screen === "onboarding" && <OnboardingScreen setScreen={setScreen} palette={palette} setPalette={setPalette} />}
+        {isMain && (
+          <>
+            <div style={{ flex: 1, display: "flex", flexDirection: "column", overflow: "hidden", position: "relative" }}>
+              {renderMain()}
+            </div>
+            {!subScreen && navScreens.includes(screen) && (
+              <NavBar active={screen} setScreen={(s) => { setSubScreen(null); setScreen(s); }} />
+            )}
+          </>
+        )}
+      </div>
+    </ThemeCtx.Provider>
+  );
+}

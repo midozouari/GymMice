@@ -1,0 +1,215 @@
+{
+  "captured": [
+    {
+      "filename": "01-splash-light.png",
+      "filePath": "/home/runner/workspace/artifacts/screenshots/01-splash-light.png",
+      "label": "Splash"
+    },
+    {
+      "filename": "02-signin-light.png",
+      "filePath": "/home/runner/workspace/artifacts/screenshots/02-signin-light.png",
+      "label": "Sign In"
+    },
+    {
+      "filename": "03-signup-light.png",
+      "filePath": "/home/runner/workspace/artifacts/screenshots/03-signup-light.png",
+      "label": "Sign Up"
+    },
+    {
+      "filename": "04-onboarding-step1-light.png",
+      "filePath": "/home/runner/workspace/artifacts/screenshots/04-onboarding-step1-light.png",
+      "label": "Onboarding - Step 1"
+    },
+    {
+      "filename": "05-onboarding-step2-light.png",
+      "filePath": "/home/runner/workspace/artifacts/screenshots/05-onboarding-step2-light.png",
+      "label": "Onboarding - Step 2"
+    },
+    {
+      "filename": "06-onboarding-step3-light.png",
+      "filePath": "/home/runner/workspace/artifacts/screenshots/06-onboarding-step3-light.png",
+      "label": "Onboarding - Step 3"
+    },
+    {
+      "filename": "07-onboarding-step4-light.png",
+      "filePath": "/home/runner/workspace/artifacts/screenshots/07-onboarding-step4-light.png",
+      "label": "Onboarding - Step 4"
+    },
+    {
+      "filename": "08-onboarding-step5-light.png",
+      "filePath": "/home/runner/workspace/artifacts/screenshots/08-onboarding-step5-light.png",
+      "label": "Onboarding - Step 5"
+    },
+    {
+      "filename": "09-home-light.png",
+      "filePath": "/home/runner/workspace/artifacts/screenshots/09-home-light.png",
+      "label": "Home"
+    },
+    {
+      "filename": "10-social-light.png",
+      "filePath": "/home/runner/workspace/artifacts/screenshots/10-social-light.png",
+      "label": "Social Feed"
+    },
+    {
+      "filename": "11-social-create-post-light.png",
+      "filePath": "/home/runner/workspace/artifacts/screenshots/11-social-create-post-light.png",
+      "label": "Social - Create Post modal"
+    },
+    {
+      "filename": "12-profile-light.png",
+      "filePath": "/home/runner/workspace/artifacts/screenshots/12-profile-light.png",
+      "label": "Profile"
+    },
+    {
+      "filename": "13-profile-palette-light.png",
+      "filePath": "/home/runner/workspace/artifacts/screenshots/13-profile-palette-light.png",
+      "label": "Profile - Color Palette"
+    },
+    {
+      "filename": "14-schedule-week-light.png",
+      "filePath": "/home/runner/workspace/artifacts/screenshots/14-schedule-week-light.png",
+      "label": "Schedule - Week"
+    },
+    {
+      "filename": "15-schedule-month-light.png",
+      "filePath": "/home/runner/workspace/artifacts/screenshots/15-schedule-month-light.png",
+      "label": "Schedule - Month"
+    },
+    {
+      "filename": "16-analytics-push-light.png",
+      "filePath": "/home/runner/workspace/artifacts/screenshots/16-analytics-push-light.png",
+      "label": "Analytics - Push"
+    },
+    {
+      "filename": "17-analytics-pull-light.png",
+      "filePath": "/home/runner/workspace/artifacts/screenshots/17-analytics-pull-light.png",
+      "label": "Analytics - Pull"
+    },
+    {
+      "filename": "18-analytics-legs-light.png",
+      "filePath": "/home/runner/workspace/artifacts/screenshots/18-analytics-legs-light.png",
+      "label": "Analytics - Legs"
+    },
+    {
+      "filename": "19-nutrition-light.png",
+      "filePath": "/home/runner/workspace/artifacts/screenshots/19-nutrition-light.png",
+      "label": "Nutrition"
+    },
+    {
+      "filename": "20-shop-light.png",
+      "filePath": "/home/runner/workspace/artifacts/screenshots/20-shop-light.png",
+      "label": "Shop"
+    },
+    {
+      "filename": "21-pumpmatch-collapsed-light.png",
+      "filePath": "/home/runner/workspace/artifacts/screenshots/21-pumpmatch-collapsed-light.png",
+      "label": "Pump Match - Collapsed"
+    },
+    {
+      "filename": "22-pumpmatch-expanded-light.png",
+      "filePath": "/home/runner/workspace/artifacts/screenshots/22-pumpmatch-expanded-light.png",
+      "label": "Pump Match - Expanded"
+    },
+    {
+      "filename": "23-dms-light.png",
+      "filePath": "/home/runner/workspace/artifacts/screenshots/23-dms-light.png",
+      "label": "Direct Messages"
+    },
+    {
+      "filename": "24-chat-light.png",
+      "filePath": "/home/runner/workspace/artifacts/screenshots/24-chat-light.png",
+      "label": "Chat"
+    },
+    {
+      "filename": "25-splash-dark.png",
+      "filePath": "/home/runner/workspace/artifacts/screenshots/25-splash-dark.png",
+      "label": "Splash (dark)"
+    },
+    {
+      "filename": "26-signin-dark.png",
+      "filePath": "/home/runner/workspace/artifacts/screenshots/26-signin-dark.png",
+      "label": "Sign In (dark)"
+    },
+    {
+      "filename": "27-signup-dark.png",
+      "filePath": "/home/runner/workspace/artifacts/screenshots/27-signup-dark.png",
+      "label": "Sign Up (dark)"
+    },
+    {
+      "filename": "28-onboarding-step1-dark.png",
+      "filePath": "/home/runner/workspace/artifacts/screenshots/28-onboarding-step1-dark.png",
+      "label": "Onboarding - Step 1 (dark)"
+    },
+    {
+      "filename": "29-home-dark.png",
+      "filePath": "/home/runner/workspace/artifacts/screenshots/29-home-dark.png",
+      "label": "Home (dark)"
+    },
+    {
+      "filename": "30-social-dark.png",
+      "filePath": "/home/runner/workspace/artifacts/screenshots/30-social-dark.png",
+      "label": "Social Feed (dark)"
+    },
+    {
+      "filename": "31-profile-dark.png",
+      "filePath": "/home/runner/workspace/artifacts/screenshots/31-profile-dark.png",
+      "label": "Profile (dark)"
+    },
+    {
+      "filename": "32-schedule-week-dark.png",
+      "filePath": "/home/runner/workspace/artifacts/screenshots/32-schedule-week-dark.png",
+      "label": "Schedule - Week (dark)"
+    },
+    {
+      "filename": "33-schedule-month-dark.png",
+      "filePath": "/home/runner/workspace/artifacts/screenshots/33-schedule-month-dark.png",
+      "label": "Schedule - Month (dark)"
+    },
+    {
+      "filename": "34-analytics-push-dark.png",
+      "filePath": "/home/runner/workspace/artifacts/screenshots/34-analytics-push-dark.png",
+      "label": "Analytics - Push (dark)"
+    },
+    {
+      "filename": "35-analytics-pull-dark.png",
+      "filePath": "/home/runner/workspace/artifacts/screenshots/35-analytics-pull-dark.png",
+      "label": "Analytics - Pull (dark)"
+    },
+    {
+      "filename": "36-analytics-legs-dark.png",
+      "filePath": "/home/runner/workspace/artifacts/screenshots/36-analytics-legs-dark.png",
+      "label": "Analytics - Legs (dark)"
+    },
+    {
+      "filename": "37-nutrition-dark.png",
+      "filePath": "/home/runner/workspace/artifacts/screenshots/37-nutrition-dark.png",
+      "label": "Nutrition (dark)"
+    },
+    {
+      "filename": "38-shop-dark.png",
+      "filePath": "/home/runner/workspace/artifacts/screenshots/38-shop-dark.png",
+      "label": "Shop (dark)"
+    },
+    {
+      "filename": "39-pumpmatch-collapsed-dark.png",
+      "filePath": "/home/runner/workspace/artifacts/screenshots/39-pumpmatch-collapsed-dark.png",
+      "label": "Pump Match - Collapsed (dark)"
+    },
+    {
+      "filename": "40-pumpmatch-expanded-dark.png",
+      "filePath": "/home/runner/workspace/artifacts/screenshots/40-pumpmatch-expanded-dark.png",
+      "label": "Pump Match - Expanded (dark)"
+    },
+    {
+      "filename": "41-dms-dark.png",
+      "filePath": "/home/runner/workspace/artifacts/screenshots/41-dms-dark.png",
+      "label": "Direct Messages (dark)"
+    },
+    {
+      "filename": "42-chat-dark.png",
+      "filePath": "/home/runner/workspace/artifacts/screenshots/42-chat-dark.png",
+      "label": "Chat (dark)"
+    }
+  ],
+  "skipped": []
+}

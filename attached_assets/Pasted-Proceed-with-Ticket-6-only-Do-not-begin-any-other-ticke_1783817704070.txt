@@ -1,0 +1,118 @@
+Proceed with **Ticket 6 only**.
+
+Do not begin any other tickets after this one is complete.
+
+Preserve all existing functionality, navigation, styling, animations and onboarding flow unless changes are required for this ticket.
+
+If you encounter an unexpected issue or architectural conflict, stop and ask me before making changes.
+
+==========================================
+TICKET 6 — ONBOARDING ENHANCEMENTS
+==================================
+
+The goal of this ticket is to improve the onboarding experience and prepare GymMice for future AI-powered workout generation.
+
+## 1. Athlete Sport Selection
+
+On the **"What describes you best?"** step:
+
+When the user selects **Athlete**, dynamically display a searchable sport selector below the selected card.
+
+Requirements:
+
+* Search bar.
+* Scrollable alphabetical list.
+* At least **50+ organized sports**.
+* Store the selected sport as `selectedSport`.
+* Keep the selected sport when navigating back and forth.
+* Only display this section when Athlete is selected.
+
+## 2. Dream Physique Upload
+
+On the **"Your Goal Physique"** step:
+
+Add an OPTIONAL section below the physique goal selection:
+
+**"Upload your dream physique (Optional)"**
+
+Requirements:
+
+* Pick an image from the gallery.
+* Display a preview.
+* Allow replacing the image.
+* Allow removing the image.
+* Store **only the image URI**, not the image itself.
+* Handle permissions correctly.
+* Do not make this step mandatory.
+
+Use Expo Image Picker.
+
+## 3. Persist Onboarding Data
+
+Store all onboarding information locally using the same persistence approach already used elsewhere in the app (e.g. AsyncStorage).
+
+This includes every onboarding field, including:
+
+* Name
+* Age
+* Gender
+* Height
+* Weight
+* Fitness level
+* Fitness goal
+* Chronic illnesses
+* Selected profile type
+* Selected sport (if Athlete)
+* Dream physique image URI
+* Any other onboarding values already collected
+
+The purpose is simply to preserve onboarding progress and user preferences locally.
+
+Do NOT create or connect a backend database.
+
+Do NOT call any AI APIs.
+
+Do NOT upload any data to a server.
+
+Everything should remain local for the MVP.
+
+## 4. Future AI Preparation
+
+Prepare the data model so future AI features can easily use:
+
+* selectedSport
+* dreamPhysiqueImageUri
+* all onboarding answers
+
+without requiring future refactoring.
+
+Do not implement any AI functionality yet.
+
+## 5. User Experience
+
+Keep the onboarding clean and beginner-friendly.
+
+Maintain existing animations.
+
+Do not redesign the onboarding.
+
+Avoid clutter.
+
+## 6. Validation
+
+After implementation:
+
+* Test Athlete selection.
+* Test searching sports.
+* Test selecting a sport.
+* Test navigating back and forth.
+* Test image upload.
+* Test replacing the image.
+* Test removing the image.
+* Test onboarding completion.
+* Verify every onboarding value persists locally after closing and reopening the app.
+* Verify logging out does not break the locally stored onboarding data.
+* Run TypeScript checks.
+* Summarize every modified file.
+
+Then STOP and wait for my review before proceeding to Ticket 7.

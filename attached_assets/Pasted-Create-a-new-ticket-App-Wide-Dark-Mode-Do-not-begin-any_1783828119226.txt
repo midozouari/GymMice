@@ -1,0 +1,177 @@
+Create a new ticket: App-Wide Dark Mode.
+
+Do not begin any unrelated work after completing this ticket.
+
+Before coding, scan the full codebase and identify:
+1. Every screen and component using hardcoded colors.
+2. The current palette/theme implementation.
+3. Which shared theme files, constants, contexts, or providers already exist.
+4. The safest way to add dark mode without redesigning the app.
+
+Then briefly summarize your implementation plan and wait for my approval before editing files.
+
+==========================================
+APP-WIDE DARK MODE
+==========================================
+
+The goal is to add a functional dark mode that applies consistently across the entire GymMice app.
+
+## 1. Profile Page Toggle
+
+At the bottom of the Profile page, inside the Account section, add a setting row:
+
+Dark Mode
+
+Include a functional switch/toggle.
+
+Behavior:
+
+- Toggle ON → Dark mode
+- Toggle OFF → Light mode
+
+The switch state must reflect the currently active theme.
+
+Do not add a separate theme page.
+
+## 2. App-Wide Theme Behavior
+
+The selected mode must apply to the entire application, including:
+
+- Splash
+- Sign In
+- Sign Up
+- Onboarding
+- Home
+- Analytics
+- Schedule
+- Social
+- DMs
+- Chat
+- Nutrition
+- Shop
+- Pump Match
+- Profile
+- Modals
+- Bottom navigation
+- Headers
+- Cards
+- Inputs
+- Buttons
+- Charts
+- Empty states
+- Popups
+
+No screen should remain partially light while dark mode is active.
+
+## 3. Palette-Aware Dark Mode
+
+GymMice already supports selectable color palettes.
+
+Dark mode must work with the currently selected palette.
+
+For each palette, create:
+
+- Light theme version
+- Matching dark theme version
+
+Do not replace every dark palette with plain black.
+
+The dark version should preserve the identity and accent colors of the selected palette while adjusting:
+
+- backgrounds,
+- surfaces,
+- cards,
+- text,
+- borders,
+- muted text,
+- icons,
+- inputs,
+- navigation,
+- progress indicators,
+- charts.
+
+## 4. Centralized Theme System
+
+Do not fix dark mode screen by screen with duplicated logic.
+
+Create or improve a centralized theme system using the current project architecture.
+
+Use a shared provider/context/hook so components can access theme values consistently.
+
+Replace necessary hardcoded colors with semantic theme tokens such as:
+
+- background
+- surface
+- card
+- primaryText
+- secondaryText
+- border
+- inputBackground
+- primary
+- accent
+- success
+- warning
+- danger
+- overlay
+
+Avoid unnecessary broad refactoring, but remove hardcoded colors where required for reliable app-wide theming.
+
+## 5. Persistence
+
+Save the selected light/dark mode locally using the same persistence method already used in the app.
+
+Requirements:
+
+- The selected mode remains after closing and reopening the app.
+- The selected mode remains after logging out and logging back in on the same device.
+- Avoid a visible flash of the wrong theme during app startup.
+- Load the stored theme before rendering the main UI when reasonably possible.
+
+## 6. Accessibility and Readability
+
+Verify proper contrast in both modes.
+
+Ensure:
+
+- text remains readable,
+- icons remain visible,
+- inputs are clear,
+- selected/unselected tabs are distinguishable,
+- disabled states remain understandable,
+- charts are readable,
+- modal overlays are not too dark or too transparent.
+
+Do not use pure black and pure white everywhere unless already part of the design.
+
+## 7. Preserve Existing Functionality
+
+Do not change:
+
+- navigation behavior,
+- business logic,
+- stored user data,
+- animations,
+- scheduling,
+- social interactions,
+- onboarding logic,
+- timer logic,
+- Pump Match behavior.
+
+This ticket is only for theme architecture and dark/light visual adaptation.
+
+## 8. Validation
+
+After implementation:
+
+- Test the toggle from the Profile page.
+- Verify immediate switching without restarting.
+- Verify every screen in both light and dark modes.
+- Verify every existing palette in both modes.
+- Verify persistence after closing and reopening the app.
+- Verify logging out does not reset the local theme choice.
+- Verify no startup flash of the wrong theme.
+- Run TypeScript checks.
+- List every modified file.
+- Mention any remaining hardcoded colors that could not safely be migrated.
+
+Then stop and wait for my review.
