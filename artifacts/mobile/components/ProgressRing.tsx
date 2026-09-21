@@ -3,7 +3,7 @@ import { Animated, StyleSheet, View } from 'react-native';
 import Svg, { Circle } from 'react-native-svg';
 import { useTheme } from '@/context/ThemeContext';
 
-const AnimatedCircle = Animated.createAnimatedComponent(Circle);
+import { AnimatedCircle } from './AnimatedSvg';
 
 type ProgressRingProps = {
   size?: number;
@@ -76,9 +76,7 @@ export default function ProgressRing({
           strokeLinecap="round"
           strokeDasharray={`${circumference}, ${circumference}`}
           strokeDashoffset={strokeDashoffset}
-          rotation="-90"
-          originX={size / 2}
-          originY={size / 2}
+          transform={`rotate(-90 ${size / 2} ${size / 2})`}
         />
       </Svg>
       <View style={styles.center}>{children}</View>

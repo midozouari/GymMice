@@ -181,9 +181,9 @@ const styles = StyleSheet.create({
   body: { flex: 1, alignItems: 'center', paddingHorizontal: 8, paddingTop: 8, paddingBottom: 18, gap: 16 },
   stage: { flex: 1, width: '100%' },
   actions: { flexDirection: 'row', alignItems: 'center', gap: 26 },
-  passBtn: { width: 58, height: 58, borderRadius: 29, borderWidth: 2, borderColor: '#F3D3D3', alignItems: 'center', justifyContent: 'center', shadowColor: '#000', shadowOffset: { width: 0, height: 3 }, shadowOpacity: 0.1, shadowRadius: 6, elevation: 3 },
+  passBtn: { width: 58, height: 58, borderRadius: 29, borderWidth: 2, borderColor: '#F3D3D3', alignItems: 'center', justifyContent: 'center', ...Platform.select({ web: { boxShadow: '0px 3px 6px rgba(0, 0, 0, 0.1)' }, default: { shadowColor: '#000', shadowOffset: { width: 0, height: 3 }, shadowOpacity: 0.1, shadowRadius: 6, elevation: 3 } }) },
   infoBtn: { width: 50, height: 50, borderRadius: 25, borderWidth: 2, alignItems: 'center', justifyContent: 'center' },
-  superBtn: { width: 66, height: 66, borderRadius: 33, alignItems: 'center', justifyContent: 'center', shadowColor: '#000', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.2, shadowRadius: 8, elevation: 6 },
+  superBtn: { width: 66, height: 66, borderRadius: 33, alignItems: 'center', justifyContent: 'center', ...Platform.select({ web: { boxShadow: '0px 4px 8px rgba(0, 0, 0, 0.2)' }, default: { shadowColor: '#000', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.2, shadowRadius: 8, elevation: 6 } }) },
   // Match screen
   matchContainer: { flex: 1, alignItems: 'center', justifyContent: 'center', padding: 32, gap: 20 },
   matchTitle: { fontSize: 28, fontFamily: 'Inter_700Bold', color: '#fff', textAlign: 'center' },

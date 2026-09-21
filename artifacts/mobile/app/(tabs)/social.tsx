@@ -484,5 +484,5 @@ const styles = StyleSheet.create({
   photoPlaceholderText: { fontFamily: 'Inter_600SemiBold', fontSize: 14 },
   createTextInput: { borderRadius: 14, borderWidth: 1.5, padding: 14, fontSize: 15, height: 100, textAlignVertical: 'top' },
   // FAB
-  fab: { position: 'absolute', right: 20, width: 54, height: 54, borderRadius: 27, alignItems: 'center', justifyContent: 'center', shadowColor: '#000', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.2, shadowRadius: 8, elevation: 8 },
+  fab: { position: 'absolute', right: 20, width: 54, height: 54, borderRadius: 27, alignItems: 'center', justifyContent: 'center', ...Platform.select({ web: { boxShadow: '0px 4px 8px rgba(0, 0, 0, 0.2)' }, default: { shadowColor: '#000', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.2, shadowRadius: 8, elevation: 8 } }) },
 });
