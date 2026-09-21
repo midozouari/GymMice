@@ -632,6 +632,12 @@ importers:
       drizzle-kit:
         specifier: ^0.31.10
         version: 0.31.10
+      tsx:
+        specifier: 'catalog:'
+        version: 4.22.4
+      vitest:
+        specifier: 5.0.1
+        version: 5.0.1(@types/node@25.9.4)(jsdom@20.0.3)(vite@7.3.5(@types/node@25.9.4)(jiti@2.7.0)(lightningcss@1.32.0)(terser@5.48.0)(tsx@4.22.4)(yaml@2.9.0))
 
   scripts:
     dependencies:

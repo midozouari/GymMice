@@ -142,10 +142,44 @@ no staging or commits are performed. Review regenerated sources; never hand-edit
 them. The CI build compiles shared libraries, API and Canvas,
 then exports Expo iOS, Android and web without the Replit-dependent mobile build script.
 
-GitHub CI runs four independent jobs on every pull request and pushes to `main`:
-typecheck/contract, API tests, mobile tests and builds. Only API tests receive
-an ephemeral masked test URL; their pinned PostgreSQL service is loopback-only.
-CI performs no schema push, migrations, deployment or post-merge hook.
+GitHub CI runs five independent jobs on every pull request and pushes to `main`:
+typecheck/contract, API tests, mobile tests, builds and migrations. API tests and
+migration tests have separate, fresh PostgreSQL 16.13 services bound to loopback.
+Only their test steps receive masked, disposable test URLs. The B02 API identity
+remains restricted; only the separate B03 migrator gets schema-creation privileges.
+CI performs migrations only in its disposable test database, never a deployed
+environment. It performs no schema push, deployment or post-merge hook.
+
+### B03 database migrations
+
+```bash
+# Offline: generate SQL from the schema, then review the generated files.
+pnpm --filter @workspace/db run migrations:generate
+# Offline: validate committed migration history.
+pnpm --filter @workspace/db run migrations:check
+# Creates an isolated disposable local database, checks history and runs DB tests.
+pnpm run test:db
+```
+
+The test harness requires local PostgreSQL tools and owns its disposable cluster;
+it must not reuse a running development/preview database. CI supplies its separately
+bootstrapped service using `pnpm run test:db --external-disposable`; this opt-in
+accepts only the strict test target and separate runtime/migrator test identities.
+Neither mode may fall back to a deployed URL.
+
+Connected `migrations:status` and `migrations:run` require explicit
+`--environment test|development|preview`; production is rejected. Runtime
+credentials and migration credentials are separate. There are no startup
+migrations, automatic schema pushes, feature tables or UI changes in B03.
+The post-merge script now only installs frozen dependencies.
+
+See the [database operations runbook](docs/backend/database-operations.md) for
+configuration, review/apply/status commands, disposable recovery drills and the
+managed-production publishing boundary. B03 validation uses disposable data only;
+it does not configure or certify production.
+Replit-managed production schema changes use the supported Publish process,
+not a custom production migration command. External production arrangements
+require separate approval; this runner rejects production.
 
 ## Notes
 
