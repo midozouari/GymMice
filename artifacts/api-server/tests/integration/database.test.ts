@@ -1,15 +1,17 @@
 import { it } from "vitest";
 
-const connect = (pool: (typeof import("@workspace/db"))["pool"]) => pool.connect();
+type RuntimeDatabase = ReturnType<(typeof import("@workspace/db"))["getRuntimeDatabase"]>;
+const connect = (pool: RuntimeDatabase["pool"]) => pool.connect();
 
 it("uses the dedicated database and rolls back temporary-table writes", async () => {
-  let pool: (typeof import("@workspace/db"))["pool"] | undefined;
+  let close: (() => Promise<void>) | undefined;
   let client: Awaited<ReturnType<typeof connect>> | undefined;
   let failed = false;
   try {
-    ({ pool } = await import("@workspace/db"));
-    pool.options.connectionTimeoutMillis = 5_000;
-    pool.options.statement_timeout = 5_000;
+    const { createDatabaseClient } = await import("@workspace/db");
+    const database = createDatabaseClient();
+    close = database.closeDatabase;
+    const { pool } = database.getRuntimeDatabase();
     client = await connect(pool);
     const identity = await client.query(
       "SELECT current_database() AS database, current_user AS role, session_user AS session_role",
@@ -44,9 +46,9 @@ it("uses the dedicated database and rolls back temporary-table writes", async ()
         client.release(true);
       }
     }
-    if (pool) {
+    if (close) {
       try {
-        await pool.end();
+        await close();
       } catch {
         failed = true;
       }

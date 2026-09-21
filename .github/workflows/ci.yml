@@ -117,3 +117,61 @@ jobs:
           cache: pnpm
       - run: pnpm install --frozen-lockfile
       - run: pnpm run build:ci
+
+  migrations:
+    timeout-minutes: 15
+    runs-on: ubuntu-24.04
+    services:
+      postgres:
+        image: postgres:16.13
+        env:
+          POSTGRES_USER: postgres
+          # Disposable service-only bootstrap credential; never a deployed secret.
+          POSTGRES_PASSWORD: ci-disposable-bootstrap-only
+          POSTGRES_DB: gymmice_test
+        ports:
+          - 127.0.0.1:55432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres -d gymmice_test"
+          --health-interval 5s --health-timeout 5s --health-retries 12
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10.26.1
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - name: Check and test migrations on disposable PostgreSQL
+        env:
+          POSTGRES_CONTAINER: ${{ job.services.postgres.id }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          runtime_password="$(openssl rand -hex 32)"
+          migration_password="$(openssl rand -hex 32)"
+          echo "::add-mask::$runtime_password"
+          echo "::add-mask::$migration_password"
+          if ! docker exec -i "$POSTGRES_CONTAINER" psql -X -U postgres -d gymmice_test -v ON_ERROR_STOP=1 >/dev/null 2>&1 <<SQL
+          CREATE ROLE gymmice_test LOGIN PASSWORD '$runtime_password' NOSUPERUSER NOCREATEDB NOCREATEROLE NOREPLICATION NOBYPASSRLS;
+          CREATE ROLE gymmice_migrator LOGIN PASSWORD '$migration_password' NOSUPERUSER NOCREATEDB NOCREATEROLE NOREPLICATION NOBYPASSRLS;
+          REVOKE ALL ON DATABASE gymmice_test FROM PUBLIC;
+          GRANT CONNECT, TEMPORARY ON DATABASE gymmice_test TO gymmice_test;
+          GRANT CONNECT, TEMPORARY, CREATE ON DATABASE gymmice_test TO gymmice_migrator;
+          REVOKE ALL ON SCHEMA public FROM PUBLIC;
+          GRANT USAGE ON SCHEMA public TO gymmice_test;
+          GRANT USAGE, CREATE ON SCHEMA public TO gymmice_migrator;
+          SQL
+          then
+            echo "::error::Isolated migration CI identity setup failed."
+            exit 1
+          fi
+          runtime_url="postgres://gymmice_test:$runtime_password@127.0.0.1:55432/gymmice_test"
+          migration_url="postgres://gymmice_migrator:$migration_password@127.0.0.1:55432/gymmice_test"
+          echo "::add-mask::$runtime_url"
+          echo "::add-mask::$migration_url"
+          TEST_DATABASE_URL="$runtime_url" TEST_MIGRATION_DATABASE_URL="$migration_url" pnpm run test:db --external-disposable

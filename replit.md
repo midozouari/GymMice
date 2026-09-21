@@ -26,8 +26,11 @@ units, privacy and API-error policy is
   This command builds output and starts a service; it is not documentation validation.
 - Mobile and Canvas artifact configurations declare `18115` and `8081`.
 - `GET /api/healthz` is the only existing API route. It is not database readiness.
-- `DATABASE_URL` is a server-only connection secret required by DB operations.
-  It must never appear in mobile configuration, source, or logs.
+- DB access is lazy and server-only. Runtime uses `DATABASE_URL`; migration
+  tooling uses separate `MIGRATION_DATABASE_URL`. Select runtime `DB_ENV`
+  explicitly (only `NODE_ENV=test` permits an implicit test environment).
+  Non-test connections require `DB_ALLOWED_TARGET` as `host:port/database`.
+  Never put connection secrets in mobile configuration, source, or logs.
 - `EXPO_PUBLIC_API_ORIGIN` is the documented future B05 client setting, **not yet
   consumed**. It is an origin without `/api`; generated routes already include
   that prefix. Native clients need a reachable API host, not their own localhost.
@@ -48,7 +51,8 @@ units, privacy and API-error policy is
 
 - `artifacts/mobile/`: existing app, routes, local storage and demo constants.
 - `artifacts/api-server/`: server scaffold and health endpoint.
-- `lib/db/`: server-only DB package; schema remains a placeholder.
+- `lib/db/`: server-only DB package, reviewed versioned migration tooling;
+  no MVP feature tables yet.
 - `lib/api-spec/openapi.yaml`: authoritative implemented API contract.
 - `lib/api-spec/orval.config.ts`: generated client and Zod configuration.
 - `lib/api-client-react/`: generated client plus shared custom transport.
@@ -56,6 +60,7 @@ units, privacy and API-error policy is
 - `artifacts/mockup-sandbox/`: separate design-preview tool.
 - `artifacts/screenshots/`: visual documentation linked by README.
 - `docs/backend/mvp-foundation.md`: B01 decisions and later-ticket boundaries.
+- `docs/backend/database-operations.md`: B03 configuration, migrations and recovery.
 
 ## Gotchas
 
@@ -66,21 +71,33 @@ units, privacy and API-error policy is
   restricted `gymmice_test` login at `127.0.0.1:55432/gymmice_test`.
   Inject `TEST_DATABASE_URL` with no URL parameters; never reuse deployed data or
   credentials, print the URL, or rely on `DATABASE_URL` fallback. See README for
-  required privileges. CI creates only this ephemeral identity, not app schema.
+   required privileges. The B02 API job creates only this ephemeral identity,
+   not app schema; it receives no migration privileges.
 - Contract checks validate OpenAPI before codegen and compare generated paths and
   contents before/after, including untracked additions/deletions; refreshed
   uncommitted baselines are allowed without index changes.
-  CI builds shared libraries, API, Canvas and Expo iOS/Android/web; it does
-  not execute DB push, migrations or the post-merge hook.
+   CI builds shared libraries, API, Canvas and Expo iOS/Android/web. A fifth,
+   isolated migrations job applies migrations only to fresh disposable PostgreSQL
+   16.13 with separate restricted runtime and migrator roles. No job runs DB push,
+   deployment, deployed-environment migrations or the post-merge hook.
 
 - `pnpm run typecheck` can emit incremental/library output; `pnpm run build`
   builds packages. Neither is necessary for documentation-only B01 validation.
 - `pnpm --filter @workspace/api-spec run codegen` rewrites generated files.
   Keep generated sources tracked and do not hand-edit them.
-- `pnpm --filter @workspace/db run push` changes database schema. It is not a
-  health check, and not a substitute for the future B03 migration/recovery workflow.
-- `.replit` points to `scripts/post-merge.sh`, which installs packages and invokes
-  a DB push. Do not run that hook as a documentation check.
+- B03 offline commands: `pnpm --filter @workspace/db run migrations:generate`
+  and `pnpm --filter @workspace/db run migrations:check`. Review generated SQL.
+- `pnpm run test:db` creates a disposable local database and runs the DB gate.
+  CI alone supplies a fresh service via `pnpm run test:db --external-disposable`.
+  Test credentials are `TEST_DATABASE_URL` (role `gymmice_test`) and
+  `TEST_MIGRATION_DATABASE_URL` (role `gymmice_migrator`), both restricted to
+  `127.0.0.1:55432/gymmice_test` with `NODE_ENV=test`.
+- Connected migration status/run require explicit `--environment`
+  `test|development|preview`; production is forbidden. B03 validation must stay
+  disposable. See the operations runbook before any connected operation.
+- No DB push scripts, startup migrations or migration hooks are supported.
+  `.replit` points to `scripts/post-merge.sh`, which only installs frozen
+  dependencies. Do not run it as a documentation check.
 - Root ignore rules do not fully protect all local environment-file variants.
   Do not create real credential files; use environment/secrets injection.
 - Do not rename `artifacts/` or reorganize the workspace as backend foundation
