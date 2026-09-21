@@ -1,45 +1,80 @@
-# [Project name]
+# GymMice
 
-_Replace the heading above with the project's name, and this line with one sentence describing what this app does for users._
+GymMice is an Expo fitness-app prototype with local/mock feature data and an
+Express/PostgreSQL backend scaffold. The backend MVP is not implemented yet.
+
+## Backend foundation
+
+The source of truth for scope, environments, configuration, ownership, time,
+units, privacy and API-error policy is
+[docs/backend/mvp-foundation.md](docs/backend/mvp-foundation.md).
+
+- Clerk is the project owner's confirmed authentication-provider choice.
+  Provider provisioning and integration belong to B07–B08; no auth exists yet.
+- B01 defines rules only. B02–B20 own implementation. Do not add authentication,
+  tables, migrations, feature endpoints, API integration or data import as B01 work.
+- Preserve existing UI and device-local data. Legacy AsyncStorage records have
+  no verified account owner and must not be automatically claimed or uploaded.
+- Private server records must belong to a verified internal user. Never trust
+  client-supplied ownership or use mock data as successful backend responses.
 
 ## Run & Operate
 
-- `pnpm --filter @workspace/api-server run dev` — run the API server (port 5000)
-- `pnpm run typecheck` — full typecheck across all packages
-- `pnpm run build` — typecheck + build all packages
-- `pnpm --filter @workspace/api-spec run codegen` — regenerate API hooks and Zod schemas from the OpenAPI spec
-- `pnpm --filter @workspace/db run push` — push DB schema changes (dev only)
-- Required env: `DATABASE_URL` — Postgres connection string
+- API entry requires `PORT`; the API artifact declares `8080`, not a source-code
+  default of `5000`. For a deliberately started local API:
+  `PORT=8080 pnpm --filter @workspace/api-server run dev`.
+  This command builds output and starts a service; it is not documentation validation.
+- Mobile and Canvas artifact configurations declare `18115` and `8081`.
+- `GET /api/healthz` is the only existing API route. It is not database readiness.
+- `DATABASE_URL` is a server-only connection secret required by DB operations.
+  It must never appear in mobile configuration, source, or logs.
+- `EXPO_PUBLIC_API_ORIGIN` is the documented future B05 client setting, **not yet
+  consumed**. It is an origin without `/api`; generated routes already include
+  that prefix. Native clients need a reachable API host, not their own localhost.
+- Development, isolated testing, preview and production must not share production
+  records or credentials. Use the environment matrix in the foundation document.
 
 ## Stack
 
 - pnpm workspaces, Node.js 24, TypeScript 5.9
+- Mobile: Expo, React Native, Expo Router, AsyncStorage
 - API: Express 5
 - DB: PostgreSQL + Drizzle ORM
 - Validation: Zod (`zod/v4`), `drizzle-zod`
 - API codegen: Orval (from OpenAPI spec)
-- Build: esbuild (CJS bundle)
+- API build: esbuild; production entry is `artifacts/api-server/dist/index.mjs`
 
 ## Where things live
 
-_Populate as you build — short repo map plus pointers to the source-of-truth file for DB schema, API contracts, theme files, etc._
-
-## Architecture decisions
-
-_Populate as you build — non-obvious choices a reader couldn't infer from the code (3-5 bullets)._
-
-## Product
-
-_Describe the high-level user-facing capabilities of this app once they exist._
-
-## User preferences
-
-_Populate as you build — explicit user instructions worth remembering across sessions._
+- `artifacts/mobile/`: existing app, routes, local storage and demo constants.
+- `artifacts/api-server/`: server scaffold and health endpoint.
+- `lib/db/`: server-only DB package; schema remains a placeholder.
+- `lib/api-spec/openapi.yaml`: authoritative implemented API contract.
+- `lib/api-spec/orval.config.ts`: generated client and Zod configuration.
+- `lib/api-client-react/`: generated client plus shared custom transport.
+- `lib/api-zod/`: generated runtime schemas.
+- `artifacts/mockup-sandbox/`: separate design-preview tool.
+- `artifacts/screenshots/`: visual documentation linked by README.
+- `docs/backend/mvp-foundation.md`: B01 decisions and later-ticket boundaries.
 
 ## Gotchas
 
-_Populate as you build — sharp edges, "always run X before Y" rules._
+- `pnpm run typecheck` can emit incremental/library output; `pnpm run build`
+  builds packages. Neither is necessary for documentation-only B01 validation.
+- `pnpm --filter @workspace/api-spec run codegen` rewrites generated files.
+  Keep generated sources tracked and do not hand-edit them.
+- `pnpm --filter @workspace/db run push` changes database schema. It is not a
+  health check, and not a substitute for the future B03 migration/recovery workflow.
+- `.replit` points to `scripts/post-merge.sh`, which installs packages and invokes
+  a DB push. Do not run that hook as a documentation check.
+- Root ignore rules do not fully protect all local environment-file variants.
+  Do not create real credential files; use environment/secrets injection.
+- Do not rename `artifacts/` or reorganize the workspace as backend foundation
+  work; manifests, workspace globs, build paths and docs depend on this structure.
+- B01 validation is limited to documentation/path checks and `git diff --check`.
+  Leave all changes uncommitted until the project owner reviews and approves them.
 
 ## Pointers
 
-- See the `pnpm-workspace` skill for workspace structure, TypeScript setup, and package details
+- [README.md](README.md): current prototype, screenshots and development entry points.
+- [Backend foundation](docs/backend/mvp-foundation.md): MVP/environment/data rules.

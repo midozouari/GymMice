@@ -19,6 +19,25 @@ GymMice is a mobile fitness app prototype that brings workouts, nutrition, sched
 
 > **Project status:** This is a frontend prototype using mock/local data. Sign-in screens, messaging, matching, and shopping are demo experiences—not production authentication, live messaging, or checkout. Some controls are placeholders.
 
+## Backend MVP foundation (B01)
+
+The [backend foundation document](docs/backend/mvp-foundation.md) defines the
+planned MVP, environments, configuration variables, ownership/privacy rules,
+local-data preservation, and API boundaries. **Clerk is the confirmed
+authentication provider; authentication is not implemented yet.**
+
+The target MVP covers accounts/profile, public workout templates, private
+scheduling, workout recording/history, real progress, and data export/deletion.
+Social, matching, messaging, nutrition, shopping, and notification services remain
+future/demo functionality. B01 does not remove or change their existing screens.
+
+Development, testing, preview, and production must use isolated data/identity
+environments. The proposed API-origin configuration and server-owned data are
+future contracts, not connected features. Existing local onboarding, preferences,
+events, and deletion markers must remain untouched until a later explicit,
+non-destructive import flow. B02–B20 own implementation; see the document for the
+ticket boundaries and review checklist.
+
 ## Screenshots
 
 | Home | Pump Match |
