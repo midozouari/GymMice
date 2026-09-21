@@ -50,7 +50,7 @@ ticket boundaries and review checklist.
 
 ## Tech Stack
 
-- Expo SDK 54 and React Native
+- Expo SDK 57 and React Native
 - React, TypeScript, and Expo Router
 - React Native Reanimated and Gesture Handler
 - AsyncStorage for saved appearance preferences
@@ -110,6 +110,42 @@ Check the whole workspace:
 ```bash
 pnpm run typecheck
 ```
+
+### B02 quality gates
+
+Use Node 24 and the pinned pnpm 10.26.1 (`packageManager`), then
+`pnpm install --frozen-lockfile`.
+
+```bash
+pnpm run check:api-contract
+pnpm run test:mobile
+pnpm run test:api
+pnpm run build:ci
+```
+
+**API test prerequisite:** provision a disposable, isolated local PostgreSQL
+database named `gymmice_test` on `127.0.0.1:55432`, with a dedicated login
+`gymmice_test` (no superuser, create-database, create-role, replication or RLS
+bypass privileges). It needs database CONNECT/TEMPORARY and public-schema USAGE only;
+no application tables or migrations are required. Inject its password-bearing
+`TEST_DATABASE_URL` through your environment/secret manager using exactly
+`postgres://gymmice_test:<password>@127.0.0.1:55432/gymmice_test` with no query
+parameters. Do not copy a development, preview or production URL. Tests reject
+unsafe/missing configuration before connecting and do not fall back to
+`DATABASE_URL`. Do not print URLs or store credentials in tracked files.
+
+The contract gate validates OpenAPI with SwaggerParser, runs the existing
+`pnpm --filter @workspace/api-spec run codegen`, then compares file paths and
+contents before/after in both generated directories, including untracked files,
+additions and deletions. An already-refreshed uncommitted baseline is allowed;
+no staging or commits are performed. Review regenerated sources; never hand-edit
+them. The CI build compiles shared libraries, API and Canvas,
+then exports Expo iOS, Android and web without the Replit-dependent mobile build script.
+
+GitHub CI runs four independent jobs on every pull request and pushes to `main`:
+typecheck/contract, API tests, mobile tests and builds. Only API tests receive
+an ephemeral masked test URL; their pinned PostgreSQL service is loopback-only.
+CI performs no schema push, migrations, deployment or post-merge hook.
 
 ## Notes
 

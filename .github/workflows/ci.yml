@@ -1,0 +1,119 @@
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  checks:
+    timeout-minutes: 15
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10.26.1
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm run typecheck
+      - run: pnpm run check:api-contract
+
+  api-tests:
+    timeout-minutes: 15
+    runs-on: ubuntu-24.04
+    services:
+      postgres:
+        image: postgres:16.13
+        env:
+          POSTGRES_USER: postgres
+          # Disposable service-only bootstrap credential; never a deployed secret.
+          POSTGRES_PASSWORD: ci-disposable-bootstrap-only
+          POSTGRES_DB: gymmice_test
+        ports:
+          - 127.0.0.1:55432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres -d gymmice_test"
+          --health-interval 5s --health-timeout 5s --health-retries 12
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10.26.1
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - name: Test with isolated, restricted database identity
+        env:
+          POSTGRES_CONTAINER: ${{ job.services.postgres.id }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          password="$(openssl rand -hex 32)"
+          echo "::add-mask::$password"
+          if ! docker exec -i "$POSTGRES_CONTAINER" psql -X -U postgres -d gymmice_test -v ON_ERROR_STOP=1 >/dev/null 2>&1 <<SQL
+          CREATE ROLE gymmice_test LOGIN PASSWORD '$password' NOSUPERUSER NOCREATEDB NOCREATEROLE NOREPLICATION NOBYPASSRLS;
+          REVOKE ALL ON DATABASE gymmice_test FROM PUBLIC;
+          GRANT CONNECT, TEMPORARY ON DATABASE gymmice_test TO gymmice_test;
+          REVOKE ALL ON SCHEMA public FROM PUBLIC;
+          GRANT USAGE ON SCHEMA public TO gymmice_test;
+          SQL
+          then
+            echo "::error::Isolated CI database identity setup failed."
+            exit 1
+          fi
+          url="postgres://gymmice_test:$password@127.0.0.1:55432/gymmice_test"
+          echo "::add-mask::$url"
+          TEST_DATABASE_URL="$url" pnpm run test:api
+
+  mobile-tests:
+    timeout-minutes: 15
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10.26.1
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm run test:mobile
+
+  builds:
+    timeout-minutes: 25
+    runs-on: ubuntu-24.04
+    env:
+      CI: "true"
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 10.26.1
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm run build:ci

@@ -2,11 +2,16 @@
   "name": "workspace",
   "version": "0.0.0",
   "license": "MIT",
+  "packageManager": "pnpm@10.26.1",
   "scripts": {
     "preinstall": "sh -c 'rm -f package-lock.json yarn.lock; case \"$npm_config_user_agent\" in pnpm/*) ;; *) echo \"Use pnpm instead\" >&2; exit 1 ;; esac'",
     "build": "pnpm run typecheck && pnpm -r --if-present run build",
     "typecheck:libs": "tsc --build",
-    "typecheck": "pnpm run typecheck:libs && pnpm -r --filter \"./artifacts/**\" --filter \"./scripts\" --if-present run typecheck"
+    "typecheck": "pnpm run typecheck:libs && pnpm -r --filter \"./artifacts/**\" --filter \"./scripts\" --if-present run typecheck",
+    "check:api-contract": "node scripts/check-api-contract.mjs",
+    "test:api": "pnpm --filter @workspace/api-server run test:api",
+    "test:mobile": "pnpm --filter @workspace/mobile run test",
+    "build:ci": "pnpm run typecheck:libs && pnpm --filter @workspace/api-server run build && PORT=8081 BASE_PATH=/__mockup/ pnpm --filter @workspace/mockup-sandbox run build && pnpm --filter @workspace/mobile run build:ci"
   },
   "private": true,
   "devDependencies": {

@@ -37,7 +37,7 @@ units, privacy and API-error policy is
 ## Stack
 
 - pnpm workspaces, Node.js 24, TypeScript 5.9
-- Mobile: Expo, React Native, Expo Router, AsyncStorage
+- Mobile: Expo SDK 57, React Native, Expo Router, AsyncStorage
 - API: Express 5
 - DB: PostgreSQL + Drizzle ORM
 - Validation: Zod (`zod/v4`), `drizzle-zod`
@@ -58,6 +58,20 @@ units, privacy and API-error policy is
 - `docs/backend/mvp-foundation.md`: B01 decisions and later-ticket boundaries.
 
 ## Gotchas
+
+- B02 gates: `pnpm run typecheck`, `pnpm run check:api-contract`,
+  `pnpm run test:api`, `pnpm run test:mobile`, and `pnpm run build:ci`.
+  Use Node 24 and pinned pnpm 10.26.1 with a frozen lockfile.
+- API tests require a separately provisioned disposable PostgreSQL database and
+  restricted `gymmice_test` login at `127.0.0.1:55432/gymmice_test`.
+  Inject `TEST_DATABASE_URL` with no URL parameters; never reuse deployed data or
+  credentials, print the URL, or rely on `DATABASE_URL` fallback. See README for
+  required privileges. CI creates only this ephemeral identity, not app schema.
+- Contract checks validate OpenAPI before codegen and compare generated paths and
+  contents before/after, including untracked additions/deletions; refreshed
+  uncommitted baselines are allowed without index changes.
+  CI builds shared libraries, API, Canvas and Expo iOS/Android/web; it does
+  not execute DB push, migrations or the post-merge hook.
 
 - `pnpm run typecheck` can emit incremental/library output; `pnpm run build`
   builds packages. Neither is necessary for documentation-only B01 validation.
