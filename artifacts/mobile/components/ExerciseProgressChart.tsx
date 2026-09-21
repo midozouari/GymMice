@@ -1,10 +1,10 @@
 import React, { useEffect, useRef } from 'react';
 import { Animated, StyleSheet, Text, View } from 'react-native';
-import Svg, { Circle, Line, Polyline } from 'react-native-svg';
+import Svg, { Circle, Line } from 'react-native-svg';
 import { useTheme } from '@/context/ThemeContext';
 import { ExerciseProgress } from '@/constants/analyticsData';
 
-const AnimatedPolyline = Animated.createAnimatedComponent(Polyline);
+import { AnimatedPolyline } from './AnimatedSvg';
 
 const CHART_WIDTH = 300;
 const CHART_HEIGHT = 100;

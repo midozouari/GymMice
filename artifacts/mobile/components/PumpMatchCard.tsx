@@ -1,5 +1,5 @@
 import React, { forwardRef, useEffect, useImperativeHandle, useState } from 'react';
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { Platform, Pressable, StyleSheet, Text, View } from 'react-native';
 import { Image } from 'expo-image';
 import { LinearGradient } from 'expo-linear-gradient';
 import { Feather } from '@expo/vector-icons';
@@ -377,17 +377,22 @@ const styles = StyleSheet.create({
     borderRadius: 28,
     overflow: 'hidden',
     backgroundColor: '#0A0A12',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 14 },
-    shadowOpacity: 0.28,
-    shadowRadius: 24,
-    elevation: 12,
+    ...Platform.select({
+      web: { boxShadow: '0px 14px 24px rgba(0, 0, 0, 0.28)' },
+      default: {
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 14 },
+        shadowOpacity: 0.28,
+        shadowRadius: 24,
+        elevation: 12,
+      },
+    }),
   },
-  photo: { ...StyleSheet.absoluteFillObject },
+  photo: { ...StyleSheet.absoluteFill },
   progressRow: { position: 'absolute', top: 14, left: 14, right: 14, flexDirection: 'row', gap: 4 },
   progressTrack: { flex: 1, height: 3, borderRadius: 2, backgroundColor: 'rgba(255,255,255,0.35)', overflow: 'hidden' },
   progressFill: { flex: 1, backgroundColor: '#fff' },
-  overlayTint: { ...StyleSheet.absoluteFillObject },
+  overlayTint: { ...StyleSheet.absoluteFill },
   stamp: { position: 'absolute', top: 46, width: 56, height: 56, borderRadius: 28, borderWidth: 3, alignItems: 'center', justifyContent: 'center', backgroundColor: 'rgba(10,10,20,0.55)' },
   stampLeft: { left: 22, transform: [{ rotate: '-14deg' }] },
   stampRight: { right: 22, transform: [{ rotate: '14deg' }] },
@@ -398,10 +403,15 @@ const styles = StyleSheet.create({
     borderTopLeftRadius: 26,
     borderTopRightRadius: 26,
     paddingTop: 8,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: -6 },
-    shadowOpacity: 0.3,
-    shadowRadius: 12,
+    ...Platform.select({
+      web: { boxShadow: '0px -6px 12px rgba(0, 0, 0, 0.3)' },
+      default: {
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: -6 },
+        shadowOpacity: 0.3,
+        shadowRadius: 12,
+      },
+    }),
   },
   grabHandleZone: { alignItems: 'center', paddingVertical: 10 },
   grabHandle: { width: 40, height: 5, borderRadius: 3, backgroundColor: 'rgba(255,255,255,0.25)' },
