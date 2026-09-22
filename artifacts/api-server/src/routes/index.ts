@@ -1,8 +1,11 @@
 import { Router, type IRouter } from "express";
-import healthRouter from "./health";
+import { createHealthRouter } from "./health";
+import type { Readiness } from "../lib/readiness";
 
-const router: IRouter = Router();
+export function createRouter(readiness: Pick<Readiness, "check">): IRouter {
+  const router: IRouter = Router();
 
-router.use(healthRouter);
+  router.use(createHealthRouter(readiness));
 
-export default router;
+  return router;
+}

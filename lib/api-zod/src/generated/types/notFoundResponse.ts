@@ -21,26 +21,9 @@
  *
  * OpenAPI spec version: 0.2.0
  */
-import * as zod from "zod";
+import type { ApiErrorResponse } from "./apiErrorResponse";
 
 /**
- * Returns process liveness without initializing or probing the database.
- * @summary Health check
+ * No route or resource matches the request.
  */
-export const HealthCheckResponse = zod.object({
-  status: zod.string(),
-});
-
-/**
- * Probes the database with `SELECT 1` through the existing lazy runtime
- * pool. The probe uses runtime credentials and the existing five-second
- * connection-acquisition and ten-second query limits; it never runs a
- * migration. Concurrent callers share an in-flight probe, but settled
- * results are not cached, so a later request can recover after an outage.
- * No database connection is made during startup. While shutdown is in
- * progress this endpoint returns 503 and does not start a new probe.
- * @summary Readiness check
- */
-export const ReadinessCheckResponse = zod.object({
-  status: zod.string(),
-});
+export type NotFoundResponse = ApiErrorResponse;

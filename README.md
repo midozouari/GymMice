@@ -181,6 +181,38 @@ Replit-managed production schema changes use the supported Publish process,
 not a custom production migration command. External production arrangements
 require separate approval; this runner rejects production.
 
+### B04 API validation, errors and readiness
+
+Every API response receives a server-generated UUID in `X-Request-Id`; incoming
+request IDs are ignored. API failures use the documented JSON envelope with a
+stable machine-readable `error.code`, safe `error.message`, matching
+`error.requestId`, and optional field-only validation `details`. Raw submitted
+values, credentials, database URLs, internal exception messages and stack traces
+must not be exposed in responses or logs.
+
+JSON and URL-encoded request bodies are limited to 100 KiB. URL-encoded parsing is
+also limited to 100 parameters and depth 5. Infrastructure handling distinguishes
+malformed requests and JSON (400), oversized payloads (413), unsupported media
+types or encodings (415), schema failures (422), unknown routes (404), unexpected
+failures (500), and temporary unavailability (503). Authentication,
+authorization, conflict and rate-limit behavior (401, 403, 409 and 429) remains
+later endpoint work; B04 does not implement it.
+
+`GET /api/healthz` remains a liveness check and never touches the database.
+`GET /api/readyz` executes `SELECT 1` through B03's lazy runtime pool and restricted
+runtime credentials. A database outage returns a sanitized 503 while liveness
+remains healthy; each later request can recover once the database does. Concurrent
+requests share only the currently in-flight probe—settled results are not cached.
+Readiness never runs migrations, does not connect during startup, and becomes
+unavailable without opening a new connection once graceful shutdown begins.
+
+Startup configuration and listen failures terminate nonzero with sanitized
+diagnostics. B04 reuses B03's existing five-second connection acquisition,
+ten-second query, database close, and HTTP-first graceful-shutdown behavior; it
+does not add feature endpoints/tables, authentication, UI integration, migration
+or deployment automation, or another CI service. The OpenAPI contract and
+generated clients are checked by the existing B02 contract gate.
+
 ## Notes
 
 - Screenshots document the current prototype, not every possible state.
