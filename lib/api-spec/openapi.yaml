@@ -2,8 +2,24 @@ openapi: 3.1.0
 info:
   # Do not change the title, if the title changes, the import paths will be broken
   title: Api
-  version: 0.1.0
-  description: API specification
+  version: 0.2.0
+  description: |
+    GymMice API specification.
+
+    The server assigns a new UUID request ID to every request and returns it in
+    `X-Request-Id`, including parser and error responses. Incoming request IDs
+    are not trusted or reused.
+
+    API failures use `ApiErrorResponse`. The infrastructure error codes defined
+    here cover malformed requests (400), oversized payloads (413), unsupported
+    media types or encodings (415), schema validation failures (422), unknown
+    routes (404), unexpected failures (500), and temporary service
+    unavailability (503). Authentication, authorization, conflict, and rate
+    limit behavior (401, 403, 409, and 429) belongs to later endpoint work and
+    is not implemented by this contract.
+
+    JSON and URL-encoded request bodies are limited to 100 KiB. URL-encoded
+    bodies are additionally limited to 100 parameters and a nesting depth of 5.
 servers:
   - url: /api
     description: Base API path
@@ -16,21 +32,188 @@ paths:
       operationId: healthCheck
       tags: [health]
       summary: Health check
-      description: Returns server health status
+      description: |
+        Returns process liveness without initializing or probing the database.
       responses:
         "200":
           description: Healthy
+          headers:
+            X-Request-Id:
+              $ref: "#/components/headers/RequestId"
           content:
             application/json:
               schema:
                 $ref: "#/components/schemas/HealthStatus"
+        default:
+          $ref: "#/components/responses/StandardError"
+  /readyz:
+    get:
+      operationId: readinessCheck
+      tags: [health]
+      summary: Readiness check
+      description: |
+        Probes the database with `SELECT 1` through the existing lazy runtime
+        pool. The probe uses runtime credentials and the existing five-second
+        connection-acquisition and ten-second query limits; it never runs a
+        migration. Concurrent callers share an in-flight probe, but settled
+        results are not cached, so a later request can recover after an outage.
+        No database connection is made during startup. While shutdown is in
+        progress this endpoint returns 503 and does not start a new probe.
+      responses:
+        "200":
+          description: Ready
+          headers:
+            X-Request-Id:
+              $ref: "#/components/headers/RequestId"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HealthStatus"
+        "503":
+          $ref: "#/components/responses/ServiceUnavailable"
+        default:
+          $ref: "#/components/responses/StandardError"
 components:
+  headers:
+    RequestId:
+      description: Server-generated correlation ID. Incoming values are not reused.
+      required: true
+      schema:
+        type: string
+        format: uuid
+  responses:
+    StandardError:
+      description: Standard API infrastructure failure.
+      headers:
+        X-Request-Id:
+          $ref: "#/components/headers/RequestId"
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ApiErrorResponse"
+    InvalidRequest:
+      description: The request is malformed.
+      headers:
+        X-Request-Id:
+          $ref: "#/components/headers/RequestId"
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ApiErrorResponse"
+    PayloadTooLarge:
+      description: The request body exceeds the accepted size.
+      headers:
+        X-Request-Id:
+          $ref: "#/components/headers/RequestId"
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ApiErrorResponse"
+    UnsupportedMediaType:
+      description: The request media type or content encoding is unsupported.
+      headers:
+        X-Request-Id:
+          $ref: "#/components/headers/RequestId"
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ApiErrorResponse"
+    ValidationFailed:
+      description: A well-formed request fails schema validation.
+      headers:
+        X-Request-Id:
+          $ref: "#/components/headers/RequestId"
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ApiErrorResponse"
+    NotFound:
+      description: No route or resource matches the request.
+      headers:
+        X-Request-Id:
+          $ref: "#/components/headers/RequestId"
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ApiErrorResponse"
+    InternalError:
+      description: An unexpected server failure occurred.
+      headers:
+        X-Request-Id:
+          $ref: "#/components/headers/RequestId"
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ApiErrorResponse"
+    ServiceUnavailable:
+      description: The service is temporarily unavailable.
+      headers:
+        X-Request-Id:
+          $ref: "#/components/headers/RequestId"
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ApiErrorResponse"
   schemas:
     HealthStatus:
       type: object
+      additionalProperties: false
       properties:
         status:
           type: string
       required:
         - status
+    ApiErrorCode:
+      type: string
+      description: Stable machine-readable infrastructure error code.
+      enum:
+        - INVALID_REQUEST
+        - INVALID_JSON
+        - PAYLOAD_TOO_LARGE
+        - UNSUPPORTED_MEDIA_TYPE
+        - VALIDATION_ERROR
+        - NOT_FOUND
+        - INTERNAL_ERROR
+        - SERVICE_UNAVAILABLE
+    ValidationErrorDetail:
+      type: object
+      additionalProperties: false
+      description: Safe field metadata; submitted values are never included.
+      properties:
+        field:
+          type: string
+        code:
+          type: string
+      required:
+        - field
+        - code
+    ApiError:
+      type: object
+      additionalProperties: false
+      properties:
+        code:
+          $ref: "#/components/schemas/ApiErrorCode"
+        message:
+          type: string
+          description: Safe user-facing message without internal diagnostics.
+        requestId:
+          type: string
+          format: uuid
+        details:
+          type: array
+          description: Optional safe field-validation metadata.
+          items:
+            $ref: "#/components/schemas/ValidationErrorDetail"
+      required:
+        - code
+        - message
+        - requestId
+    ApiErrorResponse:
+      type: object
+      additionalProperties: false
+      properties:
+        error:
+          $ref: "#/components/schemas/ApiError"
+      required:
+        - error
 

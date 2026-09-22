@@ -171,4 +171,27 @@ does not support either production execution path. Never migrate on startup or
 from post-merge hooks. Keep schema changes compatible with the old and new
 application during rollout, and plan forward recovery before approval.
 Provider selection and these release gates remain unresolved; B03 does not
-claim production readiness or implement B04 readiness endpoints.
+claim production readiness.
+
+## API readiness integration (B04)
+
+B04 layers an HTTP readiness probe onto B03 without changing database ownership,
+configuration, credentials, pool construction, timeout policy or migration
+behavior. `GET /api/healthz` remains process liveness and does not initialize the
+database. `GET /api/readyz` lazily obtains the existing runtime pool and runs only
+`SELECT 1` with the restricted runtime identity. It uses the existing five-second
+connection-acquisition and ten-second query limits; migration credentials are
+never used.
+
+Concurrent readiness requests share an in-flight probe to avoid multiplying work.
+The settled result is not cached, allowing the next request to recover after a
+transient outage. Configuration, acquisition, query and shutdown failures return
+a sanitized 503 API error and do not expose driver diagnostics, connection
+strings or credentials. A database outage does not make liveness fail, terminate
+the server, or trigger startup retries. Startup itself makes no readiness
+connection and never runs migrations.
+
+When shutdown starts, readiness changes to unavailable before HTTP draining and
+does not start another probe. The existing B03 coordinator still owns shutdown:
+stop intake and drain HTTP first, then close the database within its existing
+deadline. B04 does not replace or duplicate that lifecycle.
