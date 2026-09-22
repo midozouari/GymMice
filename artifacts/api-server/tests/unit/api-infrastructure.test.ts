@@ -1,4 +1,6 @@
 import { Writable } from "node:stream";
+import { once } from "node:events";
+import { get } from "node:http";
 import express, { type ErrorRequestHandler } from "express";
 import pino from "pino";
 import request from "supertest";
@@ -224,18 +226,133 @@ describe("API request infrastructure", () => {
     );
   });
 
-  it("delegates without writing when response headers were already sent", () => {
+  it.each([false, true])("never forwards or writes a headers-sent error (ended: %s)", (writableEnded) => {
     const next = vi.fn();
-    const handler = errorHandler(captureLogger().logger);
-    const failure = new Error("already streaming");
+    const capture = captureLogger();
+    const handler = errorHandler(capture.logger);
+    const failure = new Error("postgres://sentinel:credential@private-db/secret");
+    const response = {
+      headersSent: true, writableEnded, destroyed: false,
+      destroy: vi.fn(), status: vi.fn(), json: vi.fn(),
+    };
 
     handler(
       failure,
       { id: "request-id" } as never,
-      { headersSent: true } as never,
+      response as never,
       next,
     );
 
-    expect(next).toHaveBeenCalledWith(failure);
+    expect(next).not.toHaveBeenCalled();
+    expect(response.status).not.toHaveBeenCalled();
+    expect(response.json).not.toHaveBeenCalled();
+    expect(response.destroy).toHaveBeenCalledTimes(writableEnded ? 0 : 1);
+    if (!writableEnded) expect(response.destroy).toHaveBeenCalledWith();
+    expect(capture.lines).toHaveLength(1);
+    expect(JSON.parse(capture.lines[0]!)).toMatchObject({
+      requestId: "request-id", code: "INTERNAL_ERROR", status: 500,
+    });
+    expect(capture.lines.join("")).not.toMatch(/sentinel|credential|private-db|secret|stack|api-infrastructure\.test/u);
+  });
+
+  it("preserves an already-sent safe error payload without reaching the production default logger", async () => {
+    const capture = captureLogger();
+    const app = express();
+    app.set("env", "production");
+    app.use(requestId);
+    app.get("/already-sent", (incoming, response, next) => {
+      response.status(503).json({
+        error: {
+          code: "SERVICE_UNAVAILABLE",
+          message: "The service is temporarily unavailable.",
+          requestId: incoming.id,
+        },
+      });
+      next(new Error("postgres://sentinel:credential@private-db/secret"));
+    });
+    app.use(errorHandler(capture.logger));
+    const forwarded = vi.fn<ErrorRequestHandler>((error, _request, _response, next) => next(error));
+    app.use(forwarded);
+    const consoleError = vi.spyOn(console, "error").mockImplementation(() => {});
+    const stderr = vi.spyOn(process.stderr, "write").mockImplementation(() => true);
+    try {
+      const response = await request(app).get("/already-sent");
+      await new Promise<void>((resolve) => setImmediate(resolve));
+      expect(response.status).toBe(503);
+      expect(response.body).toEqual({
+        error: {
+          code: "SERVICE_UNAVAILABLE",
+          message: "The service is temporarily unavailable.",
+          requestId: response.headers["x-request-id"],
+        },
+      });
+      expect(forwarded).not.toHaveBeenCalled();
+      expect(consoleError).not.toHaveBeenCalled();
+      expect(stderr).not.toHaveBeenCalled();
+      expect(capture.lines).toHaveLength(1);
+      expect(JSON.stringify(response.body) + capture.lines.join("")).not.toMatch(
+        /sentinel|credential|private-db|secret|stack|api-infrastructure\.test/u,
+      );
+    } finally {
+      consoleError.mockRestore();
+      stderr.mockRestore();
+    }
+  });
+
+  it("closes an incomplete production response without a second payload or default error log", async () => {
+    const capture = captureLogger();
+    const app = express();
+    app.set("env", "production");
+    app.use(requestId);
+    let failAfterFirstChunk: (() => void) | undefined;
+    app.get("/streaming", (_incoming, response, next) => {
+      failAfterFirstChunk = () => next(new Error("postgres://sentinel:credential@private-db/secret"));
+      response.status(200).type("text/plain").write("started");
+    });
+    app.use(errorHandler(capture.logger));
+    const forwarded = vi.fn<ErrorRequestHandler>((error, _request, _response, next) => next(error));
+    app.use(forwarded);
+    const server = app.listen(0, "127.0.0.1");
+    await once(server, "listening");
+    const consoleError = vi.spyOn(console, "error").mockImplementation(() => {});
+    const stderr = vi.spyOn(process.stderr, "write").mockImplementation(() => true);
+    try {
+      const address = server.address();
+      if (!address || typeof address === "string") throw new Error("Missing test server port.");
+      const result = await new Promise<{ status: number | undefined; body: string; complete: boolean }>((resolve, reject) => {
+        const outgoing = get(`http://127.0.0.1:${address.port}/streaming`, (incoming) => {
+          let body = "";
+          incoming.setEncoding("utf8");
+          incoming.on("data", (chunk: string) => {
+            body += chunk;
+            failAfterFirstChunk?.();
+          });
+          incoming.on("error", (error: NodeJS.ErrnoException) => {
+            if (error.code !== "ECONNRESET") reject(error);
+          });
+          incoming.on("close", () => resolve({
+            status: incoming.statusCode, body, complete: incoming.complete,
+          }));
+        });
+        outgoing.setTimeout(2_000, () => outgoing.destroy(new Error("Test request timed out.")));
+        outgoing.on("error", reject);
+      });
+      await new Promise<void>((resolve) => setImmediate(resolve));
+      // Already-sent HTTP status cannot change; abort instead of claiming success
+      // with a complete body or appending a second JSON error response.
+      expect(result).toEqual({ status: 200, body: "started", complete: false });
+      expect(forwarded).not.toHaveBeenCalled();
+      expect(consoleError).not.toHaveBeenCalled();
+      expect(stderr).not.toHaveBeenCalled();
+      expect(capture.lines).toHaveLength(1);
+      expect(capture.lines.join("")).not.toMatch(
+        /sentinel|credential|private-db|secret|stack|api-infrastructure\.test/u,
+      );
+    } finally {
+      consoleError.mockRestore();
+      stderr.mockRestore();
+      server.closeAllConnections();
+      await new Promise<void>((resolve, reject) => server.close((error) => error ? reject(error) : resolve()));
+    }
   });
 });

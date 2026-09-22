@@ -12,12 +12,7 @@ export const notFound: RequestHandler = (_request, _response, next) => {
 };
 
 export function errorHandler(log: Logger): ErrorRequestHandler {
-  return (value, request, response, next) => {
-    if (response.headersSent) {
-      next(value);
-      return;
-    }
-
+  return (value, request, response, _next) => {
     const error = normalizeError(value);
     const status = API_ERROR_CODES[error.code].status;
     const metadata = {
@@ -29,6 +24,12 @@ export function errorHandler(log: Logger): ErrorRequestHandler {
       log.error(metadata, "Request failed unexpectedly.");
     } else {
       log.warn(metadata, "Request rejected.");
+    }
+    if (response.headersSent) {
+      // Status/body cannot be replaced now. Never pass a raw error to Express's
+      // final handler (which logs stacks), or to destroy() (which emits it).
+      if (!response.writableEnded && !response.destroyed) response.destroy();
+      return;
     }
     response.status(status).json(errorBody(error, request));
   };
