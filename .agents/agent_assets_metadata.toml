@@ -14,3 +14,17 @@ mtime_ms = 1790085220195
 storage_uri = "gcs://replit-rams-assets-worf/rams/assets/repl:ea9e591c-4796-41d0-9fe1-70f192d8d066/1607ac4b-0bb2-4ab3-9fbe-a3fd1b90cb59/135257e9-83ae-4f9f-9ace-5c4300bcbc43"
 storage_version_token = "1790085226216208"
 content_type = "text/html"
+
+[[outputs]]
+id = "0I0AoriXXNlog-mjF27BO"
+uri = "file://.cache/exports/B04-review.pdf"
+type = "pdf"
+title = "Download B04 complete change review — PDF"
+description = "29-page PDF converted directly from the exact HTML review, with the full diff and changed-file list. Original HTML unchanged."
+logical_id = "408ecef3-701d-463d-b2ef-ea44b7e4f29e"
+content_hash = "sha256:7fecc069fd52de53f80e763fa37f4979cfe4e1690a8aa190a09461c325458a8d"
+size = 110736
+mtime_ms = 1790085938807
+storage_uri = "gcs://replit-rams-assets-worf/rams/assets/repl:ea9e591c-4796-41d0-9fe1-70f192d8d066/408ecef3-701d-463d-b2ef-ea44b7e4f29e/c108e2be-f40f-4c41-89bb-6d97887122e5"
+storage_version_token = "1790085944815776"
+content_type = "application/pdf"
