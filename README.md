@@ -215,6 +215,14 @@ generated clients are checked by the existing B02 contract gate.
 
 ## Notes
 
+### B05 Expo native/web connectivity
+
+The app uses the generated API client with an explicit public
+`EXPO_PUBLIC_API_ORIGIN`, bounded health checks, safe connection feedback, and
+manual retry. Health success means API liveness, not database readiness.
+See [client connectivity](docs/backend/client-connectivity.md) for configuration,
+native/web differences, public-variable limits, and acceptance checks.
+
 - Screenshots document the current prototype, not every possible state.
 - The screenshot scripts use a local Expo web server at port `18115` and require Playwright Chromium.
 - Real accounts, live data, and payments need backend integration before production use.

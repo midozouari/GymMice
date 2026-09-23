@@ -25,14 +25,14 @@ units, privacy and API-error policy is
   `PORT=8080 pnpm --filter @workspace/api-server run dev`.
   This command builds output and starts a service; it is not documentation validation.
 - Mobile and Canvas artifact configurations declare `18115` and `8081`.
-- `GET /api/healthz` is the only existing API route. It is not database readiness.
+- `GET /api/healthz` checks liveness without DB access; `/api/readyz` checks database readiness.
 - DB access is lazy and server-only. Runtime uses `DATABASE_URL`; migration
   tooling uses separate `MIGRATION_DATABASE_URL`. Select runtime `DB_ENV`
   explicitly (only `NODE_ENV=test` permits an implicit test environment).
   Non-test connections require `DB_ALLOWED_TARGET` as `host:port/database`.
   Never put connection secrets in mobile configuration, source, or logs.
-- `EXPO_PUBLIC_API_ORIGIN` is the documented future B05 client setting, **not yet
-  consumed**. It is an origin without `/api`; generated routes already include
+- `EXPO_PUBLIC_API_ORIGIN` is the explicit B05 native/web client setting.
+  It is an origin without `/api`; generated routes already include
   that prefix. Native clients need a reachable API host, not their own localhost.
 - Development, isolated testing, preview and production must not share production
   records or credentials. Use the environment matrix in the foundation document.
@@ -109,3 +109,4 @@ units, privacy and API-error policy is
 
 - [README.md](README.md): current prototype, screenshots and development entry points.
 - [Backend foundation](docs/backend/mvp-foundation.md): MVP/environment/data rules.
+- [Client connectivity](docs/backend/client-connectivity.md): B05 configuration, failure handling, and acceptance checks.

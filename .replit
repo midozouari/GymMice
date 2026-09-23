@@ -21,3 +21,8 @@ timeoutMs = 20000
 
 [nix]
 channel = "stable-25_05"
+
+[userenv]
+
+[userenv.development]
+EXPO_PUBLIC_API_ORIGIN = "https://ea9e591c-4796-41d0-9fe1-70f192d8d066-00-qdnplxg6xgci.riker.replit.dev"
