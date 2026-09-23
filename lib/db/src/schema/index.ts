@@ -1,3 +1,6 @@
+export * from "./exercises.js";
+export * from "./workout-templates.js";
+export * from "./workout-template-exercises.js";
 // Export your models here. Add one export per file
 // export * from "./posts";
 //

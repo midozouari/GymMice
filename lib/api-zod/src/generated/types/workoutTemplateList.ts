@@ -21,21 +21,12 @@
  *
  * OpenAPI spec version: 0.2.0
  */
+import type { WorkoutTemplateSummary } from "./workoutTemplateSummary";
 
-export * from "./apiError";
-export * from "./apiErrorCode";
-export * from "./apiErrorResponse";
-export * from "./healthStatus";
-export * from "./internalErrorResponse";
-export * from "./invalidRequestResponse";
-export * from "./notFoundResponse";
-export * from "./payloadTooLargeResponse";
-export * from "./serviceUnavailableResponse";
-export * from "./standardErrorResponse";
-export * from "./unsupportedMediaTypeResponse";
-export * from "./validationErrorDetail";
-export * from "./validationFailedResponse";
-export * from "./workoutTemplateDetail";
-export * from "./workoutTemplateExercise";
-export * from "./workoutTemplateList";
-export * from "./workoutTemplateSummary";
+export interface WorkoutTemplateList {
+  /**
+   * At most 100 templates, ordered by slug.
+   * @maxItems 100
+   */
+  items: WorkoutTemplateSummary[];
+}

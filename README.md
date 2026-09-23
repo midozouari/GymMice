@@ -126,8 +126,11 @@ pnpm run build:ci
 **API test prerequisite:** provision a disposable, isolated local PostgreSQL
 database named `gymmice_test` on `127.0.0.1:55432`, with a dedicated login
 `gymmice_test` (no superuser, create-database, create-role, replication or RLS
-bypass privileges). It needs database CONNECT/TEMPORARY and public-schema USAGE only;
-no application tables or migrations are required. Inject its password-bearing
+bypass privileges). It needs database CONNECT/TEMPORARY, public-schema USAGE, and
+SELECT on the B06 catalog tables. Apply migrations and seed with the separate
+restricted `gymmice_migrator` identity before API tests. Prefer
+`pnpm run test:db --api`, which provisions and cleans up the entire disposable
+database and supplies both test identities. Inject its password-bearing
 `TEST_DATABASE_URL` through your environment/secret manager using exactly
 `postgres://gymmice_test:<password>@127.0.0.1:55432/gymmice_test` with no query
 parameters. Do not copy a development, preview or production URL. Tests reject
@@ -148,7 +151,8 @@ migration tests have separate, fresh PostgreSQL 16.13 services bound to loopback
 Only their test steps receive masked, disposable test URLs. The B02 API identity
 remains restricted; only the separate B03 migrator gets schema-creation privileges.
 CI performs migrations only in its disposable test database, never a deployed
-environment. It performs no schema push, deployment or post-merge hook.
+environment. The API job now uses the same migration/seed harness before testing
+catalog endpoints. It performs no schema push, deployment or post-merge hook.
 
 ### B03 database migrations
 
@@ -212,6 +216,25 @@ ten-second query, database close, and HTTP-first graceful-shutdown behavior; it
 does not add feature endpoints/tables, authentication, UI integration, migration
 or deployment automation, or another CI service. The OpenAPI contract and
 generated clients are checked by the existing B02 contract gate.
+
+### B06 public workout templates
+
+Home's existing workout card now reads the public database-backed catalog through
+the generated client and B05 transport. It selects `push-day` when available,
+otherwise the first template returned in slug order, and handles loading, empty,
+unavailable, Retry, and Refresh states without a hardcoded fallback.
+
+The controlled MVP seed contains Push Day and its seven exercises. It is a demo
+template, not a personalized recommendation. API durations use seconds; Home
+displays minutes. Public routes are read-only:
+
+- `GET /api/workout-templates` — up to 100 summaries in deterministic slug order.
+- `GET /api/workout-templates/{id}` — a UUID-keyed template with ordered exercises.
+
+Seeding is an explicit, repeatable command after reviewed migrations, never an
+API-startup or deployment hook. It preserves existing catalog edits and grants
+runtime only SELECT on catalog tables. No auth, schedule, session, or history
+behavior is changed. See [B06 setup and acceptance](docs/backend/workout-templates.md).
 
 ## Notes
 

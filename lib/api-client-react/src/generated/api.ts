@@ -31,8 +31,12 @@ import type {
 
 import type {
   HealthStatus,
+  NotFoundResponse,
   ServiceUnavailableResponse,
   StandardErrorResponse,
+  ValidationFailedResponse,
+  WorkoutTemplateDetail,
+  WorkoutTemplateList,
 } from "./api.schemas";
 
 import { customFetch } from "../custom-fetch";
@@ -214,6 +218,190 @@ export function useReadinessCheck<
   request?: SecondParameter<typeof customFetch>;
 }): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
   const queryOptions = getReadinessCheckQueryOptions(options);
+
+  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
+    queryKey: QueryKey;
+  };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+export const getListWorkoutTemplatesUrl = () => {
+  return `/api/workout-templates`;
+};
+
+/**
+ * Returns at most 100 workout templates, ordered by slug. This public,
+ * dynamic response is not cached so database edits are visible on refresh.
+ * @summary List workout templates
+ */
+export const listWorkoutTemplates = async (
+  options?: RequestInit,
+): Promise<WorkoutTemplateList> => {
+  return customFetch<WorkoutTemplateList>(getListWorkoutTemplatesUrl(), {
+    ...options,
+    method: "GET",
+  });
+};
+
+export const getListWorkoutTemplatesQueryKey = () => {
+  return [`/api/workout-templates`] as const;
+};
+
+export const getListWorkoutTemplatesQueryOptions = <
+  TData = Awaited<ReturnType<typeof listWorkoutTemplates>>,
+  TError = ErrorType<ServiceUnavailableResponse | StandardErrorResponse>,
+>(options?: {
+  query?: UseQueryOptions<
+    Awaited<ReturnType<typeof listWorkoutTemplates>>,
+    TError,
+    TData
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}) => {
+  const { query: queryOptions, request: requestOptions } = options ?? {};
+
+  const queryKey = queryOptions?.queryKey ?? getListWorkoutTemplatesQueryKey();
+
+  const queryFn: QueryFunction<
+    Awaited<ReturnType<typeof listWorkoutTemplates>>
+  > = ({ signal }) => listWorkoutTemplates({ signal, ...requestOptions });
+
+  return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
+    Awaited<ReturnType<typeof listWorkoutTemplates>>,
+    TError,
+    TData
+  > & { queryKey: QueryKey };
+};
+
+export type ListWorkoutTemplatesQueryResult = NonNullable<
+  Awaited<ReturnType<typeof listWorkoutTemplates>>
+>;
+export type ListWorkoutTemplatesQueryError = ErrorType<
+  ServiceUnavailableResponse | StandardErrorResponse
+>;
+
+/**
+ * @summary List workout templates
+ */
+
+export function useListWorkoutTemplates<
+  TData = Awaited<ReturnType<typeof listWorkoutTemplates>>,
+  TError = ErrorType<ServiceUnavailableResponse | StandardErrorResponse>,
+>(options?: {
+  query?: UseQueryOptions<
+    Awaited<ReturnType<typeof listWorkoutTemplates>>,
+    TError,
+    TData
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+  const queryOptions = getListWorkoutTemplatesQueryOptions(options);
+
+  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
+    queryKey: QueryKey;
+  };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+export const getGetWorkoutTemplateUrl = (id: string) => {
+  return `/api/workout-templates/${id}`;
+};
+
+/**
+ * Returns one workout template and its exercises in position order. This
+ * public, dynamic response is not cached so database edits are visible on
+ * refresh.
+ * @summary Get a workout template
+ */
+export const getWorkoutTemplate = async (
+  id: string,
+  options?: RequestInit,
+): Promise<WorkoutTemplateDetail> => {
+  return customFetch<WorkoutTemplateDetail>(getGetWorkoutTemplateUrl(id), {
+    ...options,
+    method: "GET",
+  });
+};
+
+export const getGetWorkoutTemplateQueryKey = (id: string) => {
+  return [`/api/workout-templates/${id}`] as const;
+};
+
+export const getGetWorkoutTemplateQueryOptions = <
+  TData = Awaited<ReturnType<typeof getWorkoutTemplate>>,
+  TError = ErrorType<
+    | NotFoundResponse
+    | ValidationFailedResponse
+    | ServiceUnavailableResponse
+    | StandardErrorResponse
+  >,
+>(
+  id: string,
+  options?: {
+    query?: UseQueryOptions<
+      Awaited<ReturnType<typeof getWorkoutTemplate>>,
+      TError,
+      TData
+    >;
+    request?: SecondParameter<typeof customFetch>;
+  },
+) => {
+  const { query: queryOptions, request: requestOptions } = options ?? {};
+
+  const queryKey = queryOptions?.queryKey ?? getGetWorkoutTemplateQueryKey(id);
+
+  const queryFn: QueryFunction<
+    Awaited<ReturnType<typeof getWorkoutTemplate>>
+  > = ({ signal }) => getWorkoutTemplate(id, { signal, ...requestOptions });
+
+  return {
+    queryKey,
+    queryFn,
+    enabled: id !== null && id !== undefined,
+    ...queryOptions,
+  } as UseQueryOptions<
+    Awaited<ReturnType<typeof getWorkoutTemplate>>,
+    TError,
+    TData
+  > & { queryKey: QueryKey };
+};
+
+export type GetWorkoutTemplateQueryResult = NonNullable<
+  Awaited<ReturnType<typeof getWorkoutTemplate>>
+>;
+export type GetWorkoutTemplateQueryError = ErrorType<
+  | NotFoundResponse
+  | ValidationFailedResponse
+  | ServiceUnavailableResponse
+  | StandardErrorResponse
+>;
+
+/**
+ * @summary Get a workout template
+ */
+
+export function useGetWorkoutTemplate<
+  TData = Awaited<ReturnType<typeof getWorkoutTemplate>>,
+  TError = ErrorType<
+    | NotFoundResponse
+    | ValidationFailedResponse
+    | ServiceUnavailableResponse
+    | StandardErrorResponse
+  >,
+>(
+  id: string,
+  options?: {
+    query?: UseQueryOptions<
+      Awaited<ReturnType<typeof getWorkoutTemplate>>,
+      TError,
+      TData
+    >;
+    request?: SecondParameter<typeof customFetch>;
+  },
+): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+  const queryOptions = getGetWorkoutTemplateQueryOptions(id, options);
 
   const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
     queryKey: QueryKey;

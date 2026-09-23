@@ -6,6 +6,7 @@ import { afterAll, beforeAll, beforeEach, describe, expect, it } from "vitest";
 import { getDatabaseConfig } from "../src/config.js";
 import { defaultMigrationsFolder } from "../src/migration-history.js";
 import { MIGRATION_LOCK_KEY, migrationStatus, runMigrations } from "../src/migration-runner.js";
+import { seedWorkoutTemplates } from "../src/workout-template-seed.js";
 
 // No skipping or hosted fallback: full package tests require the strict local harness.
 describe("migration integration (isolated localhost test database)", () => {
@@ -19,13 +20,17 @@ describe("migration integration (isolated localhost test database)", () => {
   beforeEach(async () => {
     await admin.query("DROP SCHEMA IF EXISTS drizzle CASCADE");
     await admin.query("DROP SCHEMA IF EXISTS b03_migration_fixture CASCADE");
+    await admin.query("DROP TABLE IF EXISTS public.workout_template_exercises, public.workout_templates, public.exercises CASCADE");
   });
   afterAll(async () => {
     try {
       if (admin) {
         await admin.query("DROP SCHEMA IF EXISTS b03_migration_fixture CASCADE");
         await admin.query("DROP SCHEMA IF EXISTS drizzle CASCADE");
+        await admin.query("DROP TABLE IF EXISTS public.workout_template_exercises, public.workout_templates, public.exercises CASCADE");
         await runMigrations(options);
+        const pool = new pg.Pool(getDatabaseConfig("migration", "test", process.env));
+        try { await seedWorkoutTemplates(pool); } finally { await pool.end(); }
       }
     } finally {
       if (admin) await admin.end();
@@ -38,17 +43,19 @@ describe("migration integration (isolated localhost test database)", () => {
     await cp(defaultMigrationsFolder, folder, { recursive: true });
     const path = join(folder, "meta/_journal.json");
     const journal = JSON.parse(await readFile(path, "utf8"));
-    journal.entries.push({ idx: 1, version: "7", when: journal.entries[0].when + 1, tag: "0001_fixture", breakpoints: true });
+    const idx = journal.entries.length;
+    const tag = `${String(idx).padStart(4, "0")}_fixture`;
+    journal.entries.push({ idx, version: "7", when: journal.entries.at(-1).when + 1, tag, breakpoints: true });
     await writeFile(path, JSON.stringify(journal));
-    await writeFile(join(folder, "0001_fixture.sql"), sql);
+    await writeFile(join(folder, `${tag}.sql`), sql);
     return { ...options, migrationsFolder: folder };
   }
   it("status is read-only on a fresh database; apply and rerun are idempotent", async () => {
-    expect(await migrationStatus(options)).toEqual({ applied: 0, pending: 1, total: 1 });
+    expect(await migrationStatus(options)).toEqual({ applied: 0, pending: 2, total: 2 });
     expect((await admin.query("SELECT to_regnamespace('drizzle') AS schema")).rows[0].schema).toBeNull();
-    expect(await runMigrations(options)).toEqual({ applied: 1, pending: 0, total: 1 });
-    expect(await runMigrations(options)).toEqual({ applied: 1, pending: 0, total: 1 });
-    expect((await admin.query("SELECT count(*)::int AS n FROM drizzle.__drizzle_migrations")).rows[0].n).toBe(1);
+    expect(await runMigrations(options)).toEqual({ applied: 2, pending: 0, total: 2 });
+    expect(await runMigrations(options)).toEqual({ applied: 2, pending: 0, total: 2 });
+    expect((await admin.query("SELECT count(*)::int AS n FROM drizzle.__drizzle_migrations")).rows[0].n).toBe(2);
   });
   it.each(["hash", "timestamp", "extra"])("refuses ledger corruption: %s", async kind => {
     await runMigrations(options);
@@ -69,7 +76,7 @@ describe("migration integration (isolated localhost test database)", () => {
     const opts = await fixture("CREATE SCHEMA b03_migration_fixture;\n--> statement-breakpoint\nSELECT 1 / 0;");
     await expect(runMigrations(opts)).rejects.toThrow("Migration database operation failed");
     expect((await admin.query("SELECT to_regnamespace('b03_migration_fixture') AS schema")).rows[0].schema).toBeNull();
-    expect(await migrationStatus(options)).toEqual({ applied: 1, pending: 0, total: 1 });
+    expect(await migrationStatus(options)).toEqual({ applied: 2, pending: 0, total: 2 });
     expect((await admin.query("SELECT count(*)::int AS n FROM pg_stat_activity WHERE application_name = 'gymmice-migrations'")).rows[0].n).toBe(0);
   });
   it("rolls an entire fresh batch back and can retry despite sequence consumption", async () => {
@@ -78,13 +85,14 @@ describe("migration integration (isolated localhost test database)", () => {
     expect((await admin.query("SELECT count(*)::int AS n FROM drizzle.__drizzle_migrations")).rows[0].n).toBe(0);
     expect((await admin.query("SELECT to_regnamespace('b03_migration_fixture') AS schema")).rows[0].schema).toBeNull();
     // Only an unapplied temporary fixture is edited, never committed/applied SQL.
-    await writeFile(join(opts.migrationsFolder, "0001_fixture.sql"), "CREATE SCHEMA b03_migration_fixture;");
-    expect(await runMigrations(opts)).toEqual({ applied: 2, pending: 0, total: 2 });
-    expect(await runMigrations(opts)).toEqual({ applied: 2, pending: 0, total: 2 });
+    await writeFile(join(opts.migrationsFolder, "0002_fixture.sql"), "CREATE SCHEMA b03_migration_fixture;");
+    expect(await runMigrations(opts)).toEqual({ applied: 3, pending: 0, total: 3 });
+    expect(await runMigrations(opts)).toEqual({ applied: 3, pending: 0, total: 3 });
     const ids = (await admin.query<{ id: number }>("SELECT id FROM drizzle.__drizzle_migrations ORDER BY id")).rows.map(row => row.id);
-    expect(ids.length).toBe(2);
+    expect(ids.length).toBe(3);
     expect(ids[0]).toBeGreaterThan(1);
     expect(ids[1]).toBeGreaterThan(ids[0]!);
+    expect(ids[2]).toBeGreaterThan(ids[1]!);
   });
   it("fails clearly on advisory lock contention and succeeds once released", async () => {
     await admin.query("SELECT pg_advisory_lock($1)", [MIGRATION_LOCK_KEY]);
@@ -93,7 +101,7 @@ describe("migration integration (isolated localhost test database)", () => {
     } finally {
       await admin.query("SELECT pg_advisory_unlock($1)", [MIGRATION_LOCK_KEY]);
     }
-    expect((await runMigrations(options)).applied).toBe(1);
+    expect((await runMigrations(options)).applied).toBe(2);
   });
   it("runtime role cannot do DDL, and released pool clients drain", async () => {
     const pool = new pg.Pool({ ...getDatabaseConfig("runtime", "test", process.env), max: 1, connectionTimeoutMillis: 5000, query_timeout: 10000 });

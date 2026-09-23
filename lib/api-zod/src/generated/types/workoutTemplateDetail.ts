@@ -21,21 +21,25 @@
  *
  * OpenAPI spec version: 0.2.0
  */
+import type { WorkoutTemplateExercise } from "./workoutTemplateExercise";
 
-export * from "./apiError";
-export * from "./apiErrorCode";
-export * from "./apiErrorResponse";
-export * from "./healthStatus";
-export * from "./internalErrorResponse";
-export * from "./invalidRequestResponse";
-export * from "./notFoundResponse";
-export * from "./payloadTooLargeResponse";
-export * from "./serviceUnavailableResponse";
-export * from "./standardErrorResponse";
-export * from "./unsupportedMediaTypeResponse";
-export * from "./validationErrorDetail";
-export * from "./validationFailedResponse";
-export * from "./workoutTemplateDetail";
-export * from "./workoutTemplateExercise";
-export * from "./workoutTemplateList";
-export * from "./workoutTemplateSummary";
+export interface WorkoutTemplateDetail {
+  id: string;
+  /**
+   * @minLength 1
+   * @maxLength 80
+   * @pattern ^[a-z0-9]+(?:-[a-z0-9]+)*$
+   */
+  slug: string;
+  /**
+   * @minLength 1
+   * @maxLength 120
+   */
+  name: string;
+  /**
+   * @minimum 1
+   * @maximum 86400
+   */
+  durationSeconds: number;
+  exercises: WorkoutTemplateExercise[];
+}

@@ -59,28 +59,35 @@ jobs:
           node-version: 24
           cache: pnpm
       - run: pnpm install --frozen-lockfile
-      - name: Test with isolated, restricted database identity
+      - name: Test API against migrated disposable database
         env:
           POSTGRES_CONTAINER: ${{ job.services.postgres.id }}
         shell: bash
         run: |
           set -euo pipefail
-          password="$(openssl rand -hex 32)"
-          echo "::add-mask::$password"
+          runtime_password="$(openssl rand -hex 32)"
+          migration_password="$(openssl rand -hex 32)"
+          echo "::add-mask::$runtime_password"
+          echo "::add-mask::$migration_password"
           if ! docker exec -i "$POSTGRES_CONTAINER" psql -X -U postgres -d gymmice_test -v ON_ERROR_STOP=1 >/dev/null 2>&1 <<SQL
-          CREATE ROLE gymmice_test LOGIN PASSWORD '$password' NOSUPERUSER NOCREATEDB NOCREATEROLE NOREPLICATION NOBYPASSRLS;
+          CREATE ROLE gymmice_test LOGIN PASSWORD '$runtime_password' NOSUPERUSER NOCREATEDB NOCREATEROLE NOREPLICATION NOBYPASSRLS;
+          CREATE ROLE gymmice_migrator LOGIN PASSWORD '$migration_password' NOSUPERUSER NOCREATEDB NOCREATEROLE NOREPLICATION NOBYPASSRLS;
           REVOKE ALL ON DATABASE gymmice_test FROM PUBLIC;
           GRANT CONNECT, TEMPORARY ON DATABASE gymmice_test TO gymmice_test;
+          GRANT CONNECT, TEMPORARY, CREATE ON DATABASE gymmice_test TO gymmice_migrator;
           REVOKE ALL ON SCHEMA public FROM PUBLIC;
           GRANT USAGE ON SCHEMA public TO gymmice_test;
+          GRANT USAGE, CREATE ON SCHEMA public TO gymmice_migrator;
           SQL
           then
             echo "::error::Isolated CI database identity setup failed."
             exit 1
           fi
-          url="postgres://gymmice_test:$password@127.0.0.1:55432/gymmice_test"
-          echo "::add-mask::$url"
-          TEST_DATABASE_URL="$url" pnpm run test:api
+          export TEST_DATABASE_URL="postgres://gymmice_test:$runtime_password@127.0.0.1:55432/gymmice_test"
+          export TEST_MIGRATION_DATABASE_URL="postgres://gymmice_migrator:$migration_password@127.0.0.1:55432/gymmice_test"
+          echo "::add-mask::$TEST_DATABASE_URL"
+          echo "::add-mask::$TEST_MIGRATION_DATABASE_URL"
+          pnpm run test:db --external-disposable --api
 
   mobile-tests:
     timeout-minutes: 15

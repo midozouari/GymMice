@@ -40,11 +40,44 @@ plaintext transport.
 
 Runtime must not own schemas or inherit migration privileges. Both CI logins
 are NOSUPERUSER, NOCREATEDB, NOCREATEROLE, NOREPLICATION and NOBYPASSRLS.
-Runtime receives database CONNECT/TEMPORARY and public-schema USAGE only.
+Runtime receives database CONNECT/TEMPORARY and public-schema USAGE. B06 also
+grants SELECT on the three public catalog tables, not writes or schema ownership.
 Migrator receives database CONNECT/TEMPORARY/CREATE (CREATE is needed for
 Drizzle's migration schema) and public-schema USAGE/CREATE. Public grants are
 revoked. Future feature migrations must explicitly review application grants;
 do not solve runtime permission failures by elevating the runtime identity.
+
+### B06 catalog grants and seed
+
+Provision the environment's approved runtime role before the explicit B06 seed:
+`gymmice_test` for isolated tests, `gymmice_app` for development/preview.
+The schema migration revokes catalog-table privileges from PUBLIC. The seed
+transaction grants SELECT only to approved roles that already exist; it creates
+no roles and does not require the other environment's role. A runtime role created
+later needs the explicit seed command rerun or a reviewed SELECT grant by the
+database operator, not a runtime privilege escalation.
+
+B03's conservative transactional-SQL check rejects procedural BEGIN/END blocks
+as well as top-level transaction statements. Keep this protection unchanged:
+environment-dependent grants are performed by the explicit seed transaction,
+not a procedural block in the migration.
+
+After the new schema is applied, seed the controlled public catalog explicitly:
+
+```bash
+NODE_ENV=test pnpm --filter @workspace/db run seed:workout-templates --environment test
+```
+
+This example requires the isolated test identities already injected. For an
+approved non-production environment, use `--environment development` or
+`--environment preview` with the existing migration connection/target guards.
+The seed refuses production. Never run it against an unreviewed database, during
+startup, during install/post-merge, or as a publishing hook.
+
+Seed reruns preserve existing names, durations, groups, and template membership;
+only a newly inserted `push-day` receives the seeded ordered exercise links.
+The seed is transactional and stable-keyed. See
+[workout templates](workout-templates.md) for the full behavior and validation.
 
 ## Review, generate, check, status and apply
 

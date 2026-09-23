@@ -21,6 +21,73 @@
  *
  * OpenAPI spec version: 0.2.0
  */
+export interface WorkoutTemplateSummary {
+  id: string;
+  /**
+   * @minLength 1
+   * @maxLength 80
+   * @pattern ^[a-z0-9]+(?:-[a-z0-9]+)*$
+   */
+  slug: string;
+  /**
+   * @minLength 1
+   * @maxLength 120
+   */
+  name: string;
+  /**
+   * @minimum 1
+   * @maximum 86400
+   */
+  durationSeconds: number;
+  /** @minimum 0 */
+  exerciseCount: number;
+}
+
+export interface WorkoutTemplateList {
+  /**
+   * At most 100 templates, ordered by slug.
+   * @maxItems 100
+   */
+  items: WorkoutTemplateSummary[];
+}
+
+export interface WorkoutTemplateExercise {
+  id: string;
+  /**
+   * @minLength 1
+   * @maxLength 120
+   */
+  name: string;
+  /**
+   * @minLength 1
+   * @maxLength 60
+   */
+  muscleGroup: string;
+  /** @minimum 0 */
+  position: number;
+}
+
+export interface WorkoutTemplateDetail {
+  id: string;
+  /**
+   * @minLength 1
+   * @maxLength 80
+   * @pattern ^[a-z0-9]+(?:-[a-z0-9]+)*$
+   */
+  slug: string;
+  /**
+   * @minLength 1
+   * @maxLength 120
+   */
+  name: string;
+  /**
+   * @minimum 1
+   * @maximum 86400
+   */
+  durationSeconds: number;
+  exercises: WorkoutTemplateExercise[];
+}
+
 export interface HealthStatus {
   status: string;
 }

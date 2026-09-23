@@ -101,6 +101,10 @@ try {
   for (const command of ["migrations:status", "migrations:run", "migrations:run", "migrations:status"]) {
     run("pnpm", ["--filter", "@workspace/db", "run", command, "--environment", "test"]);
   }
+  // Controlled public catalog only; repeat to exercise the explicit seed command.
+  for (let attempt = 0; attempt < 2; attempt++) {
+    run("pnpm", ["--filter", "@workspace/db", "run", "seed:workout-templates", "--environment", "test"]);
+  }
   run("pnpm", ["--filter", "@workspace/db", "run", "test"]);
   if (api) run("pnpm", ["run", "test:api"]);
 } catch (error) {

@@ -44,3 +44,103 @@ export const HealthCheckResponse = zod.object({
 export const ReadinessCheckResponse = zod.object({
   status: zod.string(),
 });
+
+/**
+ * Returns at most 100 workout templates, ordered by slug. This public,
+ * dynamic response is not cached so database edits are visible on refresh.
+ * @summary List workout templates
+ */
+export const listWorkoutTemplatesResponseItemsItemSlugMax = 80;
+
+export const listWorkoutTemplatesResponseItemsItemSlugRegExp = new RegExp(
+  "^[a-z0-9]+(?:-[a-z0-9]+)*$",
+);
+export const listWorkoutTemplatesResponseItemsItemNameMax = 120;
+
+export const listWorkoutTemplatesResponseItemsItemDurationSecondsMax = 86400;
+
+export const listWorkoutTemplatesResponseItemsItemExerciseCountMin = 0;
+
+export const listWorkoutTemplatesResponseItemsMax = 100;
+
+export const ListWorkoutTemplatesResponse = zod.object({
+  items: zod
+    .array(
+      zod.object({
+        id: zod.string().uuid(),
+        slug: zod
+          .string()
+          .min(1)
+          .max(listWorkoutTemplatesResponseItemsItemSlugMax)
+          .regex(listWorkoutTemplatesResponseItemsItemSlugRegExp),
+        name: zod
+          .string()
+          .min(1)
+          .max(listWorkoutTemplatesResponseItemsItemNameMax),
+        durationSeconds: zod
+          .number()
+          .min(1)
+          .max(listWorkoutTemplatesResponseItemsItemDurationSecondsMax),
+        exerciseCount: zod
+          .number()
+          .min(listWorkoutTemplatesResponseItemsItemExerciseCountMin),
+      }),
+    )
+    .max(listWorkoutTemplatesResponseItemsMax)
+    .describe("At most 100 templates, ordered by slug."),
+});
+
+/**
+ * Returns one workout template and its exercises in position order. This
+ * public, dynamic response is not cached so database edits are visible on
+ * refresh.
+ * @summary Get a workout template
+ */
+export const GetWorkoutTemplateParams = zod.object({
+  id: zod.coerce.string().uuid(),
+});
+
+export const getWorkoutTemplateResponseSlugMax = 80;
+
+export const getWorkoutTemplateResponseSlugRegExp = new RegExp(
+  "^[a-z0-9]+(?:-[a-z0-9]+)*$",
+);
+export const getWorkoutTemplateResponseNameMax = 120;
+
+export const getWorkoutTemplateResponseDurationSecondsMax = 86400;
+
+export const getWorkoutTemplateResponseExercisesItemNameMax = 120;
+
+export const getWorkoutTemplateResponseExercisesItemMuscleGroupMax = 60;
+
+export const getWorkoutTemplateResponseExercisesItemPositionMin = 0;
+
+export const GetWorkoutTemplateResponse = zod.object({
+  id: zod.string().uuid(),
+  slug: zod
+    .string()
+    .min(1)
+    .max(getWorkoutTemplateResponseSlugMax)
+    .regex(getWorkoutTemplateResponseSlugRegExp),
+  name: zod.string().min(1).max(getWorkoutTemplateResponseNameMax),
+  durationSeconds: zod
+    .number()
+    .min(1)
+    .max(getWorkoutTemplateResponseDurationSecondsMax),
+  exercises: zod.array(
+    zod.object({
+      id: zod.string().uuid(),
+      name: zod
+        .string()
+        .min(1)
+        .max(getWorkoutTemplateResponseExercisesItemNameMax),
+      muscleGroup: zod
+        .string()
+        .min(1)
+        .max(getWorkoutTemplateResponseExercisesItemMuscleGroupMax),
+      position: zod
+        .number()
+        .min(getWorkoutTemplateResponseExercisesItemPositionMin),
+    }),
+  ),
+});

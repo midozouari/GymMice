@@ -1,7 +1,8 @@
 # GymMice
 
-GymMice is an Expo fitness-app prototype with local/mock feature data and an
-Express/PostgreSQL backend scaffold. The backend MVP is not implemented yet.
+GymMice is an Expo fitness-app prototype with mostly local/mock feature data and
+an Express/PostgreSQL backend. B06 adds a public database-backed workout catalog;
+private accounts, schedules, sessions, and the full backend MVP remain future work.
 
 ## Backend foundation
 
@@ -50,9 +51,9 @@ units, privacy and API-error policy is
 ## Where things live
 
 - `artifacts/mobile/`: existing app, routes, local storage and demo constants.
-- `artifacts/api-server/`: server scaffold and health endpoint.
+- `artifacts/api-server/`: health/readiness and public workout-template endpoints.
 - `lib/db/`: server-only DB package, reviewed versioned migration tooling;
-  no MVP feature tables yet.
+  B06 exercise/template tables and explicit controlled public seed.
 - `lib/api-spec/openapi.yaml`: authoritative implemented API contract.
 - `lib/api-spec/orval.config.ts`: generated client and Zod configuration.
 - `lib/api-client-react/`: generated client plus shared custom transport.
@@ -71,8 +72,8 @@ units, privacy and API-error policy is
   restricted `gymmice_test` login at `127.0.0.1:55432/gymmice_test`.
   Inject `TEST_DATABASE_URL` with no URL parameters; never reuse deployed data or
   credentials, print the URL, or rely on `DATABASE_URL` fallback. See README for
-   required privileges. The B02 API job creates only this ephemeral identity,
-   not app schema; it receives no migration privileges.
+  required privileges. B06 uses a separate restricted migrator to apply schema and
+  seed the disposable catalog before API tests; runtime remains read-only on it.
 - Contract checks validate OpenAPI before codegen and compare generated paths and
   contents before/after, including untracked additions/deletions; refreshed
   uncommitted baselines are allowed without index changes.
@@ -96,6 +97,13 @@ units, privacy and API-error policy is
   `test|development|preview`; production is forbidden. B03 validation must stay
   disposable. See the operations runbook before any connected operation.
 - No DB push scripts, startup migrations or migration hooks are supported.
+  The B06 seed command is explicit and preserves existing edits; it is never
+  run at API startup. See the workout-template runbook before connected use.
+  B03's transactional SQL guard also rejects procedural BEGIN/END blocks;
+  do not weaken it for conditional grants. B06 applies its SELECT-only grants
+  to existing approved runtime roles inside the explicit seed transaction.
+  Keep the seed's transaction-scoped advisory lock: repeated concurrent GRANTs
+  can conflict on PostgreSQL catalog tuples despite idempotent row inserts.
   `.replit` points to `scripts/post-merge.sh`, which only installs frozen
   dependencies. Do not run it as a documentation check.
 - Root ignore rules do not fully protect all local environment-file variants.
@@ -110,3 +118,4 @@ units, privacy and API-error policy is
 - [README.md](README.md): current prototype, screenshots and development entry points.
 - [Backend foundation](docs/backend/mvp-foundation.md): MVP/environment/data rules.
 - [Client connectivity](docs/backend/client-connectivity.md): B05 configuration, failure handling, and acceptance checks.
+- [Workout templates](docs/backend/workout-templates.md): B06 public catalog, seed semantics, permissions, and validation.

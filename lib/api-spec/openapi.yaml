@@ -26,6 +26,8 @@ servers:
 tags:
   - name: health
     description: Health operations
+  - name: workout-templates
+    description: Public workout template operations
 paths:
   /healthz:
     get:
@@ -69,6 +71,62 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/HealthStatus"
+        "503":
+          $ref: "#/components/responses/ServiceUnavailable"
+        default:
+          $ref: "#/components/responses/StandardError"
+  /workout-templates:
+    get:
+      operationId: listWorkoutTemplates
+      tags: [workout-templates]
+      summary: List workout templates
+      description: |
+        Returns at most 100 workout templates, ordered by slug. This public,
+        dynamic response is not cached so database edits are visible on refresh.
+      responses:
+        "200":
+          description: Workout templates
+          headers:
+            X-Request-Id:
+              $ref: "#/components/headers/RequestId"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/WorkoutTemplateList"
+        "503":
+          $ref: "#/components/responses/ServiceUnavailable"
+        default:
+          $ref: "#/components/responses/StandardError"
+  /workout-templates/{id}:
+    get:
+      operationId: getWorkoutTemplate
+      tags: [workout-templates]
+      summary: Get a workout template
+      description: |
+        Returns one workout template and its exercises in position order. This
+        public, dynamic response is not cached so database edits are visible on
+        refresh.
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        "200":
+          description: Workout template detail
+          headers:
+            X-Request-Id:
+              $ref: "#/components/headers/RequestId"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/WorkoutTemplateDetail"
+        "404":
+          $ref: "#/components/responses/NotFound"
+        "422":
+          $ref: "#/components/responses/ValidationFailed"
         "503":
           $ref: "#/components/responses/ServiceUnavailable"
         default:
@@ -155,6 +213,104 @@ components:
           schema:
             $ref: "#/components/schemas/ApiErrorResponse"
   schemas:
+    WorkoutTemplateSummary:
+      type: object
+      additionalProperties: false
+      properties:
+        id:
+          type: string
+          format: uuid
+        slug:
+          type: string
+          minLength: 1
+          maxLength: 80
+          pattern: "^[a-z0-9]+(?:-[a-z0-9]+)*$"
+        name:
+          type: string
+          minLength: 1
+          maxLength: 120
+        durationSeconds:
+          type: integer
+          format: int32
+          minimum: 1
+          maximum: 86400
+        exerciseCount:
+          type: integer
+          format: int32
+          minimum: 0
+      required:
+        - id
+        - slug
+        - name
+        - durationSeconds
+        - exerciseCount
+    WorkoutTemplateList:
+      type: object
+      additionalProperties: false
+      properties:
+        items:
+          type: array
+          maxItems: 100
+          description: At most 100 templates, ordered by slug.
+          items:
+            $ref: "#/components/schemas/WorkoutTemplateSummary"
+      required:
+        - items
+    WorkoutTemplateExercise:
+      type: object
+      additionalProperties: false
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+          minLength: 1
+          maxLength: 120
+        muscleGroup:
+          type: string
+          minLength: 1
+          maxLength: 60
+        position:
+          type: integer
+          format: int32
+          minimum: 0
+      required:
+        - id
+        - name
+        - muscleGroup
+        - position
+    WorkoutTemplateDetail:
+      type: object
+      additionalProperties: false
+      properties:
+        id:
+          type: string
+          format: uuid
+        slug:
+          type: string
+          minLength: 1
+          maxLength: 80
+          pattern: "^[a-z0-9]+(?:-[a-z0-9]+)*$"
+        name:
+          type: string
+          minLength: 1
+          maxLength: 120
+        durationSeconds:
+          type: integer
+          format: int32
+          minimum: 1
+          maximum: 86400
+        exercises:
+          type: array
+          items:
+            $ref: "#/components/schemas/WorkoutTemplateExercise"
+      required:
+        - id
+        - slug
+        - name
+        - durationSeconds
+        - exercises
     HealthStatus:
       type: object
       additionalProperties: false

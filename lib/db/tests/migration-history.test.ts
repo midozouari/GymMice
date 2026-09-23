@@ -16,11 +16,12 @@ async function fixture() {
 afterEach(async () => { await Promise.all(folders.splice(0).map(folder => rm(folder, { recursive: true, force: true }))); });
 
 describe("offline migration history", () => {
-  it("validates the no-op foundation without any database configuration", async () => {
-    expect(await checkMigrations()).toEqual({ applied: 0, pending: 1, total: 1 });
-    expect(await checkMigrations({ environment: "test", env: {} })).toEqual({ applied: 0, pending: 1, total: 1 });
+  it("validates committed history without any database configuration", async () => {
+    expect(await checkMigrations()).toEqual({ applied: 0, pending: 2, total: 2 });
+    expect(await checkMigrations({ environment: "test", env: {} })).toEqual({ applied: 0, pending: 2, total: 2 });
     const files = await readMigrationHistory();
     expect(files[0]?.tag).toBe("0000_foundation");
+    expect(files[1]?.tag).toBe("0001_workout_templates");
     expect(files[0]?.hash).toMatch(/^[a-f0-9]{64}$/);
   });
   it("refuses production even for offline checks", async () => {
@@ -51,12 +52,13 @@ describe("offline migration history", () => {
     const folder = await fixture();
     const path = join(folder, "meta/_journal.json");
     const journal = JSON.parse(await readFile(path, "utf8"));
-    journal.entries.push({ ...journal.entries[0], idx: 1, tag: "0001_next" });
-    await writeFile(join(folder, "0001_next.sql"), "SELECT 2;");
+    const previous = journal.entries.at(-1);
+    journal.entries.push({ ...previous, idx: 2, tag: "0002_next" });
+    await writeFile(join(folder, "0002_next.sql"), "SELECT 2;");
     await writeFile(path, JSON.stringify(journal));
     await expect(readMigrationHistory(folder)).rejects.toThrow("invalid");
-    journal.entries[1].when += 1;
-    journal.entries[1].tag = journal.entries[0].tag;
+    journal.entries[2].when += 1;
+    journal.entries[2].tag = journal.entries[1].tag;
     await writeFile(path, JSON.stringify(journal));
     await expect(readMigrationHistory(folder)).rejects.toThrow("invalid");
   });
