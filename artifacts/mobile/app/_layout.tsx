@@ -3,7 +3,10 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { KeyboardProvider } from 'react-native-keyboard-controller';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
+import { View } from 'react-native';
 import { ErrorBoundary } from '@/components/ErrorBoundary';
+import { APIStatusBar } from '@/components/APIStatusBar';
+import { APIConnectivityProvider } from '@/context/APIConnectivityContext';
 import { ThemeProvider, useTheme } from '@/context/ThemeContext';
 import {
   Inter_400Regular,
@@ -22,23 +25,26 @@ const queryClient = new QueryClient();
 function RootLayoutNav() {
   const theme = useTheme();
   return (
-    <>
+    <View style={{ flex: 1, backgroundColor: theme.background }}>
       <StatusBar style={theme.isDark ? 'light' : 'dark'} />
-      <Stack screenOptions={{ headerShown: false, animation: 'slide_from_right' }}>
-        <Stack.Screen name="index" />
-        <Stack.Screen name="signin" />
-        <Stack.Screen name="signup" />
-        <Stack.Screen name="onboarding" />
-        <Stack.Screen name="(tabs)" />
-        <Stack.Screen name="schedule" />
-        <Stack.Screen name="analytics" />
-        <Stack.Screen name="nutrition" />
-        <Stack.Screen name="pumpmatch" />
-        <Stack.Screen name="shop" />
-        <Stack.Screen name="dms" />
-        <Stack.Screen name="chat/[name]" />
-      </Stack>
-    </>
+      <APIStatusBar />
+      <View style={{ flex: 1 }}>
+        <Stack screenOptions={{ headerShown: false, animation: 'slide_from_right' }}>
+          <Stack.Screen name="index" />
+          <Stack.Screen name="signin" />
+          <Stack.Screen name="signup" />
+          <Stack.Screen name="onboarding" />
+          <Stack.Screen name="(tabs)" />
+          <Stack.Screen name="schedule" />
+          <Stack.Screen name="analytics" />
+          <Stack.Screen name="nutrition" />
+          <Stack.Screen name="pumpmatch" />
+          <Stack.Screen name="shop" />
+          <Stack.Screen name="dms" />
+          <Stack.Screen name="chat/[name]" />
+        </Stack>
+      </View>
+    </View>
   );
 }
 
@@ -75,9 +81,11 @@ export default function RootLayout() {
           <GestureHandlerRootView style={{ flex: 1 }}>
             <KeyboardProvider>
               <ThemeProvider>
-                <AppReadyGate>
-                  <RootLayoutNav />
-                </AppReadyGate>
+                <APIConnectivityProvider>
+                  <AppReadyGate>
+                    <RootLayoutNav />
+                  </AppReadyGate>
+                </APIConnectivityProvider>
               </ThemeProvider>
             </KeyboardProvider>
           </GestureHandlerRootView>

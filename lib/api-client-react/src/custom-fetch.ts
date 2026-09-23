@@ -1,5 +1,6 @@
 export type CustomFetchOptions = RequestInit & {
   responseType?: "json" | "text" | "blob" | "auto";
+  timeoutMs?: number;
 };
 
 export type ErrorType<T = unknown> = ApiError<T>;
@@ -10,6 +11,38 @@ export type AuthTokenGetter = () => Promise<string | null> | string | null;
 
 const NO_BODY_STATUS = new Set([204, 205, 304]);
 const DEFAULT_JSON_ACCEPT = "application/json, application/problem+json";
+export const DEFAULT_REQUEST_TIMEOUT_MS = 10_000;
+
+export type TransportErrorKind = "timeout" | "network" | "cancelled";
+
+const TRANSPORT_ERROR_MESSAGES: Record<TransportErrorKind, string> = {
+  timeout: "The request timed out.",
+  network: "The network request failed.",
+  cancelled: "The request was cancelled.",
+};
+
+const GENERIC_API_ERROR_MESSAGE = "The request could not be completed.";
+const SAFE_API_ERROR_MESSAGES: Record<string, string> = {
+  INVALID_REQUEST: "The request is invalid.",
+  INVALID_JSON: "The request contains invalid JSON.",
+  PAYLOAD_TOO_LARGE: "The request is too large.",
+  UNSUPPORTED_MEDIA_TYPE: "The request format is not supported.",
+  VALIDATION_ERROR: "Some request fields are invalid.",
+  NOT_FOUND: "The requested resource was not found.",
+  INTERNAL_ERROR: "Something went wrong. Please try again.",
+  SERVICE_UNAVAILABLE: "The service is temporarily unavailable. Please try again.",
+};
+
+export class TransportError extends Error {
+  readonly name = "TransportError";
+  readonly kind: TransportErrorKind;
+
+  constructor(kind: TransportErrorKind) {
+    super(TRANSPORT_ERROR_MESSAGES[kind]);
+    Object.setPrototypeOf(this, new.target.prototype);
+    this.kind = kind;
+  }
+}
 
 // ---------------------------------------------------------------------------
 // Module-level configuration
@@ -134,41 +167,26 @@ function looksLikeJson(text: string): boolean {
   return trimmed.startsWith("{") || trimmed.startsWith("[");
 }
 
-function getStringField(value: unknown, key: string): string | undefined {
-  if (!value || typeof value !== "object") return undefined;
-
-  const candidate = (value as Record<string, unknown>)[key];
-  if (typeof candidate !== "string") return undefined;
-
-  const trimmed = candidate.trim();
-  return trimmed === "" ? undefined : trimmed;
-}
-
-function truncate(text: string, maxLength = 300): string {
-  return text.length > maxLength ? `${text.slice(0, maxLength - 1)}…` : text;
+/**
+ * Maps the allowlisted B04 error codes to client-owned display text. Server
+ * messages are deliberately ignored so an unexpected response can never put
+ * response content, diagnostics, or URLs into a displayed error.
+ */
+export function getSafeApiErrorMessage(data: unknown): string {
+  if (!data || typeof data !== "object") return GENERIC_API_ERROR_MESSAGE;
+  const error = (data as Record<string, unknown>).error;
+  if (!error || typeof error !== "object") return GENERIC_API_ERROR_MESSAGE;
+  const code = (error as Record<string, unknown>).code;
+  if (typeof code !== "string") return GENERIC_API_ERROR_MESSAGE;
+  return Object.prototype.hasOwnProperty.call(SAFE_API_ERROR_MESSAGES, code)
+    ? SAFE_API_ERROR_MESSAGES[code]
+    : GENERIC_API_ERROR_MESSAGE;
 }
 
 function buildErrorMessage(response: Response, data: unknown): string {
-  const prefix = `HTTP ${response.status} ${response.statusText}`;
-
-  if (typeof data === "string") {
-    const text = data.trim();
-    return text ? `${prefix}: ${truncate(text)}` : prefix;
-  }
-
-  const title = getStringField(data, "title");
-  const detail = getStringField(data, "detail");
-  const message =
-    getStringField(data, "message") ??
-    getStringField(data, "error_description") ??
-    getStringField(data, "error");
-
-  if (title && detail) return `${prefix}: ${title} — ${detail}`;
-  if (detail) return `${prefix}: ${detail}`;
-  if (message) return `${prefix}: ${message}`;
-  if (title) return `${prefix}: ${title}`;
-
-  return prefix;
+  const prefix = `Request failed with status ${response.status}.`;
+  const safeMessage = getSafeApiErrorMessage(data);
+  return `${prefix} ${safeMessage}`;
 }
 
 export class ApiError<T = unknown> extends Error {
@@ -216,10 +234,7 @@ export class ResponseParseError extends Error {
     cause: unknown,
     requestInfo: { method: string; url: string },
   ) {
-    super(
-      `Failed to parse response from ${requestInfo.method} ${response.url || requestInfo.url} ` +
-        `(${response.status} ${response.statusText}) as JSON`,
-    );
+    super(`Response with status ${response.status} could not be parsed as JSON.`);
     Object.setPrototypeOf(this, new.target.prototype);
 
     this.status = response.status;
@@ -251,8 +266,11 @@ async function parseJsonBody(
   }
 }
 
-async function parseErrorBody(response: Response, method: string): Promise<unknown> {
-  if (hasNoBody(response, method)) {
+async function parseErrorBody(
+  response: Response,
+  requestInfo: { method: string; url: string },
+): Promise<unknown> {
+  if (hasNoBody(response, requestInfo.method)) {
     return null;
   }
 
@@ -274,8 +292,8 @@ async function parseErrorBody(response: Response, method: string): Promise<unkno
   if (isJsonMediaType(mediaType) || looksLikeJson(normalized)) {
     try {
       return JSON.parse(normalized);
-    } catch {
-      return raw;
+    } catch (cause) {
+      throw new ResponseParseError(response, raw, cause, requestInfo);
     }
   }
 
@@ -327,12 +345,24 @@ export async function customFetch<T = unknown>(
   options: CustomFetchOptions = {},
 ): Promise<T> {
   input = applyBaseUrl(input);
-  const { responseType = "auto", headers: headersInit, ...init } = options;
+  const {
+    responseType = "auto",
+    timeoutMs = DEFAULT_REQUEST_TIMEOUT_MS,
+    headers: headersInit,
+    signal: callerSignal,
+    ...init
+  } = options;
 
   const method = resolveMethod(input, init.method);
+  const externalSignal =
+    callerSignal ?? (isRequest(input) ? input.signal : undefined);
 
   if (init.body != null && (method === "GET" || method === "HEAD")) {
     throw new TypeError(`customFetch: ${method} requests cannot have a body.`);
+  }
+
+  if (externalSignal?.aborted) {
+    throw new TransportError("cancelled");
   }
 
   const headers = mergeHeaders(isRequest(input) ? input.headers : undefined, headersInit);
@@ -358,14 +388,59 @@ export async function customFetch<T = unknown>(
     }
   }
 
-  const requestInfo = { method, url: resolveUrl(input) };
-
-  const response = await fetch(input, { ...init, method, headers });
-
-  if (!response.ok) {
-    const errorData = await parseErrorBody(response, method);
-    throw new ApiError(response, errorData, requestInfo);
+  if (externalSignal?.aborted) {
+    throw new TransportError("cancelled");
   }
 
-  return (await parseSuccessBody(response, responseType, requestInfo)) as T;
+  const requestInfo = { method, url: resolveUrl(input) };
+  const controller = new AbortController();
+  let abortKind: Exclude<TransportErrorKind, "network"> | null = null;
+  let rejectAbort!: (error: TransportError) => void;
+  const aborted = new Promise<never>((_, reject) => {
+    rejectAbort = reject;
+  });
+
+  const abort = (kind: Exclude<TransportErrorKind, "network">): void => {
+    if (abortKind) return;
+    abortKind = kind;
+    controller.abort();
+    rejectAbort(new TransportError(kind));
+  };
+  const handleCallerAbort = (): void => abort("cancelled");
+
+  externalSignal?.addEventListener("abort", handleCallerAbort, { once: true });
+
+  const timer = setTimeout(() => abort("timeout"), timeoutMs);
+
+  try {
+    const response = await Promise.race([
+      fetch(input, { ...init, method, headers, signal: controller.signal }),
+      aborted,
+    ]);
+
+    if (!response.ok) {
+      const errorData = await Promise.race([
+        parseErrorBody(response, requestInfo),
+        aborted,
+      ]);
+      throw new ApiError(response, errorData, requestInfo);
+    }
+
+    return (await Promise.race([
+      parseSuccessBody(response, responseType, requestInfo),
+      aborted,
+    ])) as T;
+  } catch (error) {
+    if (
+      error instanceof ApiError ||
+      error instanceof ResponseParseError ||
+      error instanceof TransportError
+    ) {
+      throw error;
+    }
+    throw new TransportError(abortKind ?? "network");
+  } finally {
+    clearTimeout(timer);
+    externalSignal?.removeEventListener("abort", handleCallerAbort);
+  }
 }
