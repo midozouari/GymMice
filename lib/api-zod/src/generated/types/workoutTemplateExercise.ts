@@ -22,20 +22,18 @@
  * OpenAPI spec version: 0.2.0
  */
 
-export * from "./apiError";
-export * from "./apiErrorCode";
-export * from "./apiErrorResponse";
-export * from "./healthStatus";
-export * from "./internalErrorResponse";
-export * from "./invalidRequestResponse";
-export * from "./notFoundResponse";
-export * from "./payloadTooLargeResponse";
-export * from "./serviceUnavailableResponse";
-export * from "./standardErrorResponse";
-export * from "./unsupportedMediaTypeResponse";
-export * from "./validationErrorDetail";
-export * from "./validationFailedResponse";
-export * from "./workoutTemplateDetail";
-export * from "./workoutTemplateExercise";
-export * from "./workoutTemplateList";
-export * from "./workoutTemplateSummary";
+export interface WorkoutTemplateExercise {
+  id: string;
+  /**
+   * @minLength 1
+   * @maxLength 120
+   */
+  name: string;
+  /**
+   * @minLength 1
+   * @maxLength 60
+   */
+  muscleGroup: string;
+  /** @minimum 0 */
+  position: number;
+}

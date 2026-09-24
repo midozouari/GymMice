@@ -12,6 +12,7 @@
     "migrations:check": "tsx src/migration-cli.ts check",
     "migrations:status": "tsx src/migration-cli.ts status",
     "migrations:run": "tsx src/migration-cli.ts run",
+    "seed:workout-templates": "tsx src/workout-template-seed-cli.ts",
     "test": "vitest run",
     "typecheck": "tsc --noEmit -p tsconfig.test.json",
     "test:integration": "vitest run tests/migrations.integration.test.ts",

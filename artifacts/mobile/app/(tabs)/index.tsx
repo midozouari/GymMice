@@ -7,11 +7,12 @@ import Svg, { Line, Polyline } from 'react-native-svg';
 import Logo from '@/components/Logo';
 import ProgressRing from '@/components/ProgressRing';
 import RestTimer from '@/components/RestTimer';
+import WorkoutTemplateCard from '@/components/WorkoutTemplateCard';
 import { useTheme } from '@/context/ThemeContext';
 import { useCountUp } from '@/hooks/useCountUp';
 import { useScheduleEvents } from '@/hooks/useScheduleEvents';
 import { CURRENT_STREAK } from '@/constants/mockData';
-import { TODAYS_WORKOUT, exerciseCount } from '@/constants/workoutData';
+import { useWorkoutTemplate } from '@/hooks/useWorkoutTemplate';
 import { CATEGORY_META, formatCountdown, getNextUpcomingEvent, getTodaysGymEvent } from '@/constants/scheduleData';
 
 const MEALS = [
@@ -54,8 +55,8 @@ export default function HomeScreen() {
   const topPad = Platform.OS === 'web' ? Math.max(insets.top, 67) : insets.top;
   const botPad = Platform.OS === 'web' ? Math.max(insets.bottom, 84) : insets.bottom;
 
-  const [showWorkout, setShowWorkout] = useState(false);
   const { allEvents } = useScheduleEvents();
+  const workoutTemplate = useWorkoutTemplate();
 
   // Bumped only when the Home tab gains focus (not on every scroll/re-render),
   // so the stat rings + count-up numbers replay their entrance animation each
@@ -136,57 +137,7 @@ export default function HomeScreen() {
         <RevealSection delay={60}>
           <View style={styles.section}>
             <Text style={[styles.sectionTitle, { color: theme.mutedText }]}>TODAY'S WORKOUT</Text>
-            <View style={[styles.card, { backgroundColor: theme.surface }]}>
-              <TouchableOpacity onPress={() => setShowWorkout(w => !w)} style={styles.workoutHeader} activeOpacity={0.7}>
-                <View style={[styles.workoutIconBg, { backgroundColor: theme.chartNegativeBg }]}>
-                  <MaterialCommunityIcons name="dumbbell" size={28} color={theme.chartLegs} />
-                </View>
-                <View style={{ flex: 1 }}>
-                  <Text style={[styles.workoutName, { color: theme.primaryText }]}>{TODAYS_WORKOUT.name}</Text>
-                  <View style={styles.muscleTags}>
-                    {TODAYS_WORKOUT.muscles.map(m => (
-                      <View key={m} style={[styles.muscleTag, { backgroundColor: theme.chartNegativeBg }]}>
-                        <Text style={[styles.muscleTagText, { color: theme.chartLegs }]}>{m}</Text>
-                      </View>
-                    ))}
-                  </View>
-                </View>
-                <Feather name={showWorkout ? 'chevron-up' : 'chevron-down'} size={20} color={theme.secondaryText} />
-              </TouchableOpacity>
-
-              <View style={[styles.workoutMetaRow, { borderTopColor: theme.border }]}>
-                <View style={styles.workoutMetaItem}>
-                  <Feather name="list" size={13} color={theme.iconMuted} />
-                  <Text style={[styles.workoutMetaText, { color: theme.secondaryText }]}>{exerciseCount(TODAYS_WORKOUT)} exercises</Text>
-                </View>
-                <View style={styles.workoutMetaItem}>
-                  <Feather name="clock" size={13} color={theme.iconMuted} />
-                  <Text style={[styles.workoutMetaText, { color: theme.secondaryText }]}>~{TODAYS_WORKOUT.durationMinutes} min</Text>
-                </View>
-                {todaysGymEvent && (
-                  <View style={styles.workoutMetaItem}>
-                    <Feather name="calendar" size={13} color={theme.iconMuted} />
-                    <Text style={[styles.workoutMetaText, { color: theme.secondaryText }]}>{todaysGymEvent.startTime}</Text>
-                  </View>
-                )}
-              </View>
-
-              {showWorkout && (
-                <View style={[styles.workoutBody, { borderTopColor: theme.border }]}>
-                  {TODAYS_WORKOUT.exercises.map(group => (
-                    <View key={group.group} style={{ marginTop: 12 }}>
-                      <Text style={[styles.groupLabel, { color: theme.primary }]}>{group.group}</Text>
-                      {group.moves.map(m => (
-                        <View key={m} style={[styles.moveRow, { borderBottomColor: theme.border }]}>
-                          <View style={[styles.moveDot, { backgroundColor: theme.accent }]} />
-                          <Text style={[styles.moveText, { color: theme.primaryText }]}>{m}</Text>
-                        </View>
-                      ))}
-                    </View>
-                  ))}
-                </View>
-              )}
-            </View>
+            <WorkoutTemplateCard {...workoutTemplate} scheduledStartTime={todaysGymEvent?.startTime} />
           </View>
         </RevealSection>
 
@@ -279,7 +230,7 @@ export default function HomeScreen() {
                   <MaterialCommunityIcons name="dumbbell" size={26} color={theme.chartLegs} />
                 </View>
                 <Text style={[styles.ringLabel, { color: theme.primaryText }]}>Workout</Text>
-                <Text style={[styles.ringSub, { color: theme.mutedText }]}>{TODAYS_WORKOUT.name}</Text>
+                <Text style={[styles.ringSub, { color: theme.mutedText }]}>{workoutTemplate.workout?.name ?? 'Unavailable'}</Text>
               </View>
             </View>
           </View>
@@ -368,20 +319,6 @@ const styles = StyleSheet.create({
   legendText: { fontSize: 11, fontFamily: 'Inter_600SemiBold' },
   viewAnalyticsRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 6, marginTop: 12, paddingTop: 12, borderTopWidth: 1 },
   viewAnalyticsText: { fontSize: 13, fontFamily: 'Inter_700Bold' },
-  workoutHeader: { flexDirection: 'row', alignItems: 'center', gap: 14 },
-  workoutIconBg: { width: 52, height: 52, borderRadius: 12, alignItems: 'center', justifyContent: 'center' },
-  workoutName: { fontSize: 16, fontFamily: 'Inter_700Bold' },
-  muscleTags: { flexDirection: 'row', gap: 6, flexWrap: 'wrap', marginTop: 6 },
-  muscleTag: { borderRadius: 20, paddingHorizontal: 8, paddingVertical: 3 },
-  muscleTagText: { fontSize: 11, fontFamily: 'Inter_700Bold' },
-  workoutMetaRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 14, marginTop: 14, paddingTop: 14, borderTopWidth: 1 },
-  workoutMetaItem: { flexDirection: 'row', alignItems: 'center', gap: 5 },
-  workoutMetaText: { fontSize: 12, fontFamily: 'Inter_600SemiBold' },
-  workoutBody: { borderTopWidth: 1, marginTop: 12, paddingTop: 4 },
-  groupLabel: { fontSize: 14, fontFamily: 'Inter_700Bold', marginBottom: 6 },
-  moveRow: { flexDirection: 'row', alignItems: 'center', gap: 10, paddingVertical: 7, borderBottomWidth: 1 },
-  moveDot: { width: 6, height: 6, borderRadius: 3 },
-  moveText: { fontSize: 14, fontFamily: 'Inter_400Regular' },
   nextEventRow: { flexDirection: 'row', alignItems: 'center', gap: 12 },
   nextEventIconBg: { width: 44, height: 44, borderRadius: 12, alignItems: 'center', justifyContent: 'center' },
   nextEventTitle: { fontSize: 15, fontFamily: 'Inter_700Bold' },
